@@ -7,8 +7,8 @@
     </button>
   </div>
 
-  <form *ngIf="showClientForm" [formGroup]="clientForm" (ngSubmit)="createClient()" class="bg-white rounded-lg shadow p-6 mb-6">
-    <h2 class="text-xl font-bold mb-4">Create New Client</h2>
+  <form *ngIf="showClientForm" [formGroup]="clientForm" (ngSubmit)="saveClient()" class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-bold mb-4">{{ editingClientId ? 'Edit Client' : 'Create New Client' }}</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
@@ -46,7 +46,10 @@
 
     <div class="mt-6">
       <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-        Save Client
+        {{ editingClientId ? 'Update Client' : 'Save Client' }}
+      </button>
+      <button type="button" (click)="cancelClientForm()" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+        Cancel
       </button>
     </div>
   </form>
@@ -70,6 +73,10 @@
             <i class="fa-solid fa-eye"></i>
             <span class="button-text"></span>
           View Invoices</button>
+          <button (click)="editClient(client)" class="btn-view-invoices">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span class="button-text"></span>
+          Edit Client</button>
           <button (click)="deleteClient(client.id)" class="btn-delete">
             <i class="fa-solid fa-trash"></i>
             <span class="button-text"></span>

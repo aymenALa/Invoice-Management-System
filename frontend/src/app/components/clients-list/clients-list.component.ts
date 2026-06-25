@@ -16,6 +16,7 @@ export class ClientsListComponent implements OnInit {
   clients: any[] = [];
   clientForm: FormGroup;
   showClientForm = false;
+  editingClientId: number | null = null;
 
   constructor(
     private clientService: ClientService,
@@ -49,11 +50,11 @@ export class ClientsListComponent implements OnInit {
     this.showClientForm = !this.showClientForm;
 
     if (!this.showClientForm) {
-      this.clientForm.reset();
+      this.resetClientForm();
     }
   }
 
-  createClient(): void {
+  saveClient(): void {
     if (this.clientForm.invalid) {
       this.clientForm.markAllAsTouched();
 
@@ -67,28 +68,49 @@ export class ClientsListComponent implements OnInit {
       return;
     }
 
-    this.clientService.createClient(this.clientForm.value).subscribe(
+    const operation = this.editingClientId
+      ? this.clientService.updateClient(this.editingClientId, this.clientForm.value)
+      : this.clientService.createClient(this.clientForm.value);
+
+    operation.subscribe(
       () => {
-        this.clientForm.reset();
-        this.showClientForm = false;
+        const action = this.editingClientId ? 'updated' : 'created';
+        this.resetClientForm();
         this.loadClients();
 
         Swal.fire({
           title: 'Success',
-          text: 'Client created successfully.',
+          text: `Client ${action} successfully.`,
           icon: 'success',
           confirmButtonText: 'OK'
         });
       },
       error => {
+        const action = this.editingClientId ? 'updating' : 'creating';
+
         Swal.fire({
           title: 'Error',
-          text: this.getErrorMessage(error, 'An error occurred while creating the client.'),
+          text: this.getErrorMessage(error, `An error occurred while ${action} the client.`),
           icon: 'error',
           confirmButtonText: 'OK'
         });
       }
     );
+  }
+
+  editClient(client: any): void {
+    this.editingClientId = client.id;
+    this.showClientForm = true;
+    this.clientForm.patchValue({
+      name: client.name || '',
+      email: client.email || '',
+      phoneNumber: client.phoneNumber || '',
+      address: client.address || ''
+    });
+  }
+
+  cancelClientForm(): void {
+    this.resetClientForm();
   }
 
   deleteClient(clientId: number): void {
@@ -138,6 +160,12 @@ export class ClientsListComponent implements OnInit {
     }
 
     return `Please ${missingFields.join(', ')}.`;
+  }
+
+  private resetClientForm(): void {
+    this.clientForm.reset();
+    this.showClientForm = false;
+    this.editingClientId = null;
   }
 
   private getErrorMessage(error: any, fallback: string): string {
