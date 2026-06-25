@@ -16,9 +16,28 @@
       <h1>Sign in</h1>
       <input type="text" placeholder="Username or Email" [(ngModel)]="signInIdentifier" name="signInIdentifier" required>
       <input type="password" placeholder="Password" [(ngModel)]="signInPassword" name="signInPassword" required>
-      <a href="#" class="forgot__password">Forgot your password?</a>
+      <a href="#" class="forgot__password" (click)="showPasswordResetForm($event)">Forgot your password?</a>
       <button type="submit" class="btn">Sign In</button>
       <p *ngIf="signInError" class="error-message">{{ signInError }}</p>
+    </form>
+
+    <form *ngIf="showForgotPasswordForm && !resetToken" class="password-reset-form" (ngSubmit)="requestPasswordReset()">
+      <h1>Reset password</h1>
+      <input type="email" placeholder="Email" [(ngModel)]="forgotPasswordEmail" name="forgotPasswordEmail" required>
+      <button type="submit" class="btn">Send Link</button>
+      <button type="button" class="text-btn" (click)="closePasswordResetForm()">Back to sign in</button>
+      <p *ngIf="passwordResetMessage" class="success-message">{{ passwordResetMessage }}</p>
+      <p *ngIf="passwordResetError" class="error-message">{{ passwordResetError }}</p>
+    </form>
+
+    <form *ngIf="showForgotPasswordForm && resetToken" class="password-reset-form" (ngSubmit)="resetForgottenPassword()">
+      <h1>New password</h1>
+      <input type="password" placeholder="New password" [(ngModel)]="newPassword" name="newPassword" required>
+      <input type="password" placeholder="Confirm password" [(ngModel)]="confirmNewPassword" name="confirmNewPassword" required>
+      <button type="submit" class="btn">Update Password</button>
+      <button type="button" class="text-btn" (click)="closePasswordResetForm()">Back to sign in</button>
+      <p *ngIf="passwordResetMessage" class="success-message">{{ passwordResetMessage }}</p>
+      <p *ngIf="passwordResetError" class="error-message">{{ passwordResetError }}</p>
     </form>
   </div>
   <div class="overlay__container">

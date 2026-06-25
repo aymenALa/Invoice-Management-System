@@ -115,6 +115,22 @@ input {
   margin: 15px 0;
 }
 
+.password-reset-form {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+.text-btn {
+  background: transparent;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 14px;
+  text-decoration: underline;
+}
+
 .overlay__container {
   position: absolute;
   top: 0;
@@ -187,6 +203,12 @@ input {
 }
 .error-message {
   color: #ff3860;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.success-message {
+  color: #1a8870;
   font-size: 0.9em;
   margin-top: 10px;
 }

@@ -33,12 +33,6 @@
       <button type="button" (click)="toggleClientForm()" class="mt-2 bg-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded" style="background-color: #27b397;">
         Add New Client
       </button>
-      <div *ngIf="isEditMode" class="mt-4 p-4 bg-gray-100 rounded">
-        <h3 class="font-bold">Debugging Info:</h3>
-        <p>Selected Client ID: {{ invoiceForm.get('clientId')?.value }}</p>
-        <p>Selected Client: {{ selectedClient | json }}</p>
-      </div>
-
     </div>
 
     <!-- Client Form -->
@@ -151,18 +145,4 @@
       </button>
     </div>
   </form>
-
-  <!-- <div class="mt-4 p-4 bg-gray-100 rounded">
-  <h3 class="font-bold">Debugging Info:</h3>
-  <p>Is Edit Mode: {{ isEditMode }}</p>
-  <p>Invoice ID: {{ invoiceId }}</p>
-  <p>Selected Client ID: {{ invoiceForm.get('clientId')?.value }}</p>
-  <p>Form Valid: {{ invoiceForm.valid }}</p>
-  <p>Form Touched: {{ invoiceForm.touched }}</p>
-  <p>Form Dirty: {{ invoiceForm.dirty }}</p>
-  <p>Form Values: {{ invoiceForm.value | json }}</p>
-  <p>Form Errors: {{ invoiceForm.errors | json }}</p>
-  <p>Selected Client: {{ selectedClient | json }}</p>
-</div> -->
-
 </div>

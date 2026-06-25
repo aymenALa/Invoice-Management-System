@@ -2,8 +2,10 @@ package com.invoice_management_system.controller;
 
 import com.invoice_management_system.dto.AuthenticationRequest;
 import com.invoice_management_system.dto.AuthenticationResponse;
+import com.invoice_management_system.dto.ForgotPasswordRequest;
 import com.invoice_management_system.dto.RegisterResponse;
 import com.invoice_management_system.dto.RegistrationRequest;
+import com.invoice_management_system.dto.ResetPasswordRequest;
 import com.invoice_management_system.model.User;
 import com.invoice_management_system.security.JwtUtil;
 import com.invoice_management_system.service.UserService;
@@ -17,7 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.invoice_management_system.dto.RegisterResponse;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -57,5 +60,17 @@ public class AuthController {
         final String jwt = jwtUtil.generateToken(userDetails);
         
         return ResponseEntity.ok(new AuthenticationResponse(jwt,userDetails.getUsername()));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        userService.requestPasswordReset(forgotPasswordRequest.getEmail());
+        return ResponseEntity.ok(Map.of("message", "If that email exists, a password reset link has been sent."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+        userService.resetPassword(resetPasswordRequest.getToken(), resetPasswordRequest.getNewPassword());
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully."));
     }
 }
