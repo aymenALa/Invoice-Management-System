@@ -30,8 +30,8 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        User user = userRepository.findByUsernameOrEmail(username, username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username or email: " + username));
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         for (String role : user.getRoles()) {
@@ -72,6 +72,10 @@ public class UserService implements UserDetailsService {
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public Optional<User> findByUsernameOrEmail(String usernameOrEmail) {
+        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
     }
 
     public User getUserFromAuthentication(Authentication authentication) {

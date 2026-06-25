@@ -49,7 +49,7 @@ public class AuthController {
             new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
         );
         
-        User user = userService.findByUsername(authenticationRequest.getUsername())
+        User user = userService.findByUsernameOrEmail(authenticationRequest.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         userService.updateLastLogin(user);
         

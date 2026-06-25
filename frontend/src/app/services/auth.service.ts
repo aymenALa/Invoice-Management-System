@@ -19,10 +19,10 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(username: string, password: string): Observable<LoginResponse> {
+  login(usernameOrEmail: string, password: string): Observable<LoginResponse> {
     // Clear any existing token before login
     this.logout();
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { username, password })
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { username: usernameOrEmail, password })
       .pipe(
         tap(response => {
           if (response && response.token) {

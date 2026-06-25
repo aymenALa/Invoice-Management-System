@@ -18,7 +18,7 @@ export class AuthFormComponent {
   signUpLastName = '';
   signUpEmail = '';
   signUpPassword = '';
-  signInEmail = '';
+  signInIdentifier = '';
   signInPassword = '';
 
   constructor(private authService: AuthService, private router: Router) {}
@@ -28,14 +28,14 @@ export class AuthFormComponent {
 
   onSignIn() {
     this.signInError = ''; // Clear previous error messages
-    this.authService.login(this.signInEmail, this.signInPassword).subscribe({
+    this.authService.login(this.signInIdentifier, this.signInPassword).subscribe({
       next: () => {
         console.log('Login successful');
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         console.error('Login failed', err);
-        this.signInError = 'Invalid username or password';
+        this.signInError = 'Invalid username/email or password';
       }
     });
   }
