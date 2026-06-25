@@ -1,0 +1,5 @@
+# Doxyfile configuration for invoice_management_system
+
+PROJECT_NAME           = "Invoice Management System"
+OUTPUT_DIRECTORY       = C:\Users\ayman\OneDrive\Bureau\doxygen
+INPUT                  = C:/GIT_OBOULOT/oboulot/invoice-management-system/

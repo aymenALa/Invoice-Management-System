@@ -1,0 +1,58 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <div class="px-6 py-4">
+      <h1 class="text-3xl font-bold text-gray-800 mb-4">Invoice Details</h1>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Invoice Number</p>
+          <p class="mt-1 text-lg text-gray-900">{{ invoice.invoiceNumber }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500">Client</p>
+          <p class="mt-1 text-lg text-gray-900">
+            {{ invoice.client?.name || 'No client assigned' }}
+          </p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500">Issue Date</p>
+          <p class="mt-1 text-lg text-gray-900">{{ invoice.issueDate | date }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500">Due Date</p>
+          <p class="mt-1 text-lg text-gray-900">{{ invoice.dueDate | date }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500">Total Amount</p>
+          <p class="mt-1 text-lg text-gray-900">{{ invoice.totalAmount | currency }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500">Status</p>
+          <p class="mt-1">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                  [ngClass]="{
+                    'bg-green-100 text-green-800': invoice.status === 'PAID',
+                    'bg-yellow-100 text-yellow-800': invoice.status === 'PENDING',
+                    'bg-red-100 text-red-800': invoice.status === 'OVERDUE'
+                  }">
+              {{ invoice.status }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-4">
+  <button (click)="router.navigate(['/invoices', invoice.id, 'edit'])" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+    <i class="fa-regular fa-pen-to-square"></i>
+  </button>
+  <button (click)="deleteInvoice()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+      <i class="fa-solid fa-trash"></i>
+  </button>
+  <button (click)="downloadPdf()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+      <i class="fa-solid fa-file-pdf"></i>
+  </button>
+  <button (click)="router.navigate(['/invoices'])" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+    <i class="fa-solid fa-backward"></i> Back to List
+  </button>
+</div>
+  </div>
+</div>

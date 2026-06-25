@@ -1,0 +1,52 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Invoices for {{ client?.name }}</h1>
+
+  <button (click)="downloadAllInvoicesPdf()" class="bg-500 hover:bg-green-700 text-white font-bold py-2 px-4  hover:shadow-lg mb-4" style="background-color: #27b397;">
+    All Invoices PDF <i class="fa-solid fa-file-pdf"></i>
+  </button>
+
+  <table class="w-full bg-white rounded-lg shadow">
+    <thead>
+      <tr>
+        <th class="text-left p-4">Invoice Number</th>
+        <th class="text-left p-4">Issue Date</th>
+        <th class="text-left p-4">Due Date</th>
+        <th class="text-left p-4">Total Amount</th>
+        <th class="text-left p-4">Status</th>
+        <th class="text-left p-4">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let invoice of invoices">
+        <td class="p-4">{{ invoice.invoiceNumber }}</td>
+        <td class="p-4">{{ invoice.issueDate | date }}</td>
+        <td class="p-4">{{ invoice.dueDate | date }}</td>
+        <td class="p-4">{{ invoice.totalAmount | currency }}</td>
+        <td class="p-4">
+          <span [ngClass]="{
+            'text-green-600': invoice.status === 'PAID',
+            'text-yellow-600': invoice.status === 'PENDING',
+            'text-red-600': invoice.status === 'OVERDUE'
+          }">
+            {{ invoice.status }}
+          </span>
+        </td>
+        <td class="p-4">
+          <button (click)="viewInvoice(invoice.id)" class="icon-button text-indigo-600 hover:text-indigo-900">
+            <div class="icon-container">
+              <i class="fa-solid fa-eye"></i>
+              <span class="button-text">View</span>
+            </div>
+          </button>
+          <button (click)="downloadInvoicePdf(invoice.id)" class="icon-button text-green-600 hover:text-green-900">
+            <div class="icon-container">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span class="button-text">PDF</span>
+            </div>
+          </button>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

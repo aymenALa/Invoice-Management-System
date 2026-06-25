@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.icon-button {
+  display: inline-flex;
+  flex-direction: column; /* Stack icon and text vertically */
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem; /* Optional: Add padding to the button */
+  position: relative;
+}
+
+.icon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.icon-container i {
+  font-size: 1.5rem; /* Adjust icon size as needed */
+  margin-bottom: 0.25rem; /* Space between icon and text */
+}
+
+.icon-container .button-text {
+  display: none;
+}
+
+.icon-button:hover .icon-container .button-text {
+  display: block;
+}
+
+.bg-blue-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(94 148 236);
+}
+.bg-red-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 74 74);
+}
+
+
+.btn-view-invoices,.btn-delete {
+  background-color: #27b397;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 2px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.btn-view-invoices:hover{
+  background-color: #6ec9b7;
+  color: rgb(0, 0, 0);
+}
+.btn-delete{
+  background-color: rgb(240, 35, 35);
+}
+.btn-delete:hover{
+  background-color: rgb(233, 145, 145);
+  color: rgb(0, 0, 0);
+
+}

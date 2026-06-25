@@ -1,0 +1,31 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Clients</h1>
+
+  <table class="w-full bg-white rounded-lg shadow">
+    <thead>
+      <tr>
+        <th class="text-left p-4">Name</th>
+        <th class="text-left p-4">Email</th>
+        <th class="text-left p-4">Phone Number</th>
+        <th class="text-left p-4">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let client of clients">
+        <td class="p-4">{{ client.name }}</td>
+        <td class="p-4">{{ client.email }}</td>
+        <td class="p-4">{{ client.phoneNumber }}</td>
+        <td class="p-4">
+          <button (click)="viewClientInvoices(client.id)" class="btn-view-invoices">
+            <i class="fa-solid fa-eye"></i>
+            <span class="button-text"></span>
+          View Invoices</button>
+          <button (click)="deleteClient(client.id)" class="btn-delete">
+            <i class="fa-solid fa-trash"></i>
+            <span class="button-text"></span>
+          Delete Client</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

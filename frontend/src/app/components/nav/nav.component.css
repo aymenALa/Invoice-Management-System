@@ -1,0 +1,6 @@
+.nav{
+  background: #27b397;
+  background: linear-gradient(to right, #27b397, #1a8870);
+  /* background: rgb(39,179,151);
+  background: linear-gradient(90deg, rgba(39,179,151,0.4543942577030813) 0%, rgba(99,184,201,0.5888480392156863) 8%); */
+}

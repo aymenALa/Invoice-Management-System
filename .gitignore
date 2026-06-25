@@ -1,0 +1,28 @@
+# Build output
+backend/target/
+frontend/dist/
+frontend/.angular/cache/
+
+# Dependency/runtime caches
+backend/.mvn-user-home/
+frontend/node_modules/
+frontend/nvm/
+
+# Local run logs
+*.log
+frontend/ng-serve.*.log
+
+# Generated project snapshots
+backend/backend_structure.txt
+frontend/structure.txt
+frontend/src/app_structure.txt
+frontend/src/app/app_structure.txt
+
+# IDE/workspace metadata
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
