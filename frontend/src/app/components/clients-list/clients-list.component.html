@@ -1,5 +1,55 @@
 <div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-6">Clients</h1>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold">Clients</h1>
+    <button type="button" (click)="toggleClientForm()" class="btn-view-invoices">
+      <i class="fa-solid" [ngClass]="showClientForm ? 'fa-xmark' : 'fa-plus'"></i>
+      {{ showClientForm ? 'Cancel' : 'Create Client' }}
+    </button>
+  </div>
+
+  <form *ngIf="showClientForm" [formGroup]="clientForm" (ngSubmit)="createClient()" class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-bold mb-4">Create New Client</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="clientName">Name</label>
+        <input id="clientName" type="text" formControlName="name"
+               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <p *ngIf="clientForm.get('name')?.invalid && (clientForm.get('name')?.dirty || clientForm.get('name')?.touched)" class="text-red-500 text-xs italic mt-1">
+          <ng-container *ngIf="clientForm.get('name')?.errors?.['required']">Client name is required.</ng-container>
+          <ng-container *ngIf="clientForm.get('name')?.errors?.['minlength']">Client name must be at least 3 characters.</ng-container>
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="clientEmail">Email</label>
+        <input id="clientEmail" type="email" formControlName="email"
+               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <p *ngIf="clientForm.get('email')?.invalid && (clientForm.get('email')?.dirty || clientForm.get('email')?.touched)" class="text-red-500 text-xs italic mt-1">
+          <ng-container *ngIf="clientForm.get('email')?.errors?.['required']">Client email is required.</ng-container>
+          <ng-container *ngIf="clientForm.get('email')?.errors?.['email']">Enter a valid email address.</ng-container>
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="clientPhone">Phone Number</label>
+        <input id="clientPhone" type="tel" formControlName="phoneNumber"
+               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      </div>
+
+      <div>
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="clientAddress">Address</label>
+        <input id="clientAddress" type="text" formControlName="address"
+               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+        Save Client
+      </button>
+    </div>
+  </form>
 
   <table class="w-full bg-white rounded-lg shadow">
     <thead>

@@ -24,7 +24,7 @@
         </option>
       </select>
       <p *ngIf="invoiceForm.get('clientId')?.invalid && (invoiceForm.get('clientId')?.dirty || invoiceForm.get('clientId')?.touched)" class="text-red-500 text-xs italic">
-        <ng-container *ngIf="invoiceForm.get('clientId')?.errors?.['required']">Client selection is required.❌</ng-container>
+        <ng-container *ngIf="invoiceForm.get('clientId')?.errors?.['required']">Please choose an existing client or create a new one.</ng-container>
       </p>
       <p *ngIf="selectedClient" class="mt-2 text-sm text-gray-600">
         Selected Client: {{ selectedClient.name }}
@@ -142,7 +142,7 @@
     </div>
     <div class="flex items-center justify-between">
       <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"  [disabled]="!invoiceForm.valid">
+              type="submit">
         {{ isEditMode ? 'Update' : 'Create' }} Invoice
       </button>
       <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

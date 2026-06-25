@@ -43,7 +43,7 @@ export class InvoiceFormComponent implements OnInit {
       dueDate: ['', Validators.required],
       totalAmount: ['', [Validators.required, Validators.min(0)]],
       status: ['', Validators.required],
-      clientId: ['']
+      clientId: ['', Validators.required]
     });
   }
 
@@ -117,7 +117,7 @@ export class InvoiceFormComponent implements OnInit {
         error => {
           Swal.fire({
             title: 'Error',
-            text: error.error.message || `An error occurred while ${this.isEditMode ? 'updating' : 'creating'} the invoice.`,
+            text: this.getErrorMessage(error, `An error occurred while ${this.isEditMode ? 'updating' : 'creating'} the invoice.`),
             icon: 'error',
             confirmButtonText: 'OK'
           });
@@ -136,7 +136,7 @@ export class InvoiceFormComponent implements OnInit {
 
       Swal.fire({
         title: 'Validation Error',
-        text: 'Please fill out all required fields correctly.',
+        text: this.getInvoiceValidationMessage(),
         icon: 'warning',
         confirmButtonText: 'OK'
       });
@@ -170,10 +170,66 @@ export class InvoiceFormComponent implements OnInit {
           Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: error.error.message || 'An error occurred while creating the client.',
+            text: this.getErrorMessage(error, 'An error occurred while creating the client.'),
           });
         }
       );
     }
+  }
+
+  private getInvoiceValidationMessage(): string {
+    const missingFields: string[] = [];
+
+    if (this.invoiceForm.get('clientId')?.hasError('required')) {
+      missingFields.push('choose an existing client or create a new one');
+    }
+
+    if (this.invoiceForm.get('invoiceNumber')?.hasError('required')) {
+      missingFields.push('enter an invoice number');
+    }
+
+    if (this.invoiceForm.get('issueDate')?.hasError('required')) {
+      missingFields.push('select an issue date');
+    }
+
+    if (this.invoiceForm.get('dueDate')?.hasError('required')) {
+      missingFields.push('select a due date');
+    }
+
+    if (this.invoiceForm.get('totalAmount')?.hasError('required')) {
+      missingFields.push('enter the total amount');
+    } else if (this.invoiceForm.get('totalAmount')?.hasError('min')) {
+      missingFields.push('enter a total amount greater than 0');
+    }
+
+    if (this.invoiceForm.get('status')?.hasError('required')) {
+      missingFields.push('select an invoice status');
+    }
+
+    if (missingFields.length === 0) {
+      return 'Please fill out all required fields correctly.';
+    }
+
+    return `Please ${missingFields.join(', ')}.`;
+  }
+
+  private getErrorMessage(error: any, fallback: string): string {
+    if (typeof error?.error === 'string') {
+      return error.error;
+    }
+
+    if (error?.error?.message) {
+      return error.error.message;
+    }
+
+    if (error?.error?.error) {
+      return error.error.error;
+    }
+
+    if (error?.error && typeof error.error === 'object') {
+      return Object.values(error.error).join('\n');
+    }
+
+    return fallback;
   }
 }
