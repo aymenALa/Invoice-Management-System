@@ -7,9 +7,10 @@ import { InvoiceDetailComponent } from './components/invoices/invoice-detail/inv
 import { ClientInvoicesComponent } from './components/client-invoices/client-invoices.component';
 import { ClientsListComponent } from './components/clients-list/clients-list.component';
 import { authGuard } from './guards/auth.guard';
+import { noAuthGuard } from './guards/no-auth.guard';
 
 export const routes: Routes = [
-  { path: 'auth', component: AuthFormComponent },
+  { path: 'auth', component: AuthFormComponent, canActivate: [noAuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'invoices', component: InvoiceListComponent, canActivate: [authGuard] },
   { path: 'invoices/new', component: InvoiceFormComponent, canActivate: [authGuard] },

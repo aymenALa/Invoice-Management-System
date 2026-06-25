@@ -15,7 +15,7 @@ export class AuthService {
   private apiUrl = 'http://localhost:8080/api/auth';
   private tokenKey = 'auth_token';
   private usernameKey= 'auth_username';
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.isTokenValid());
 
   constructor(private http: HttpClient) {}
 
@@ -41,19 +41,62 @@ export class AuthService {
   }
 
   isAuthenticated(): Observable<boolean> {
+    this.isAuthenticatedSubject.next(this.isTokenValid());
     return this.isAuthenticatedSubject.asObservable();
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return this.isTokenValid() ? localStorage.getItem(this.tokenKey) : null;
   }
 
   getUsername(): string | null {
     return localStorage.getItem(this.usernameKey);
   }
 
-  private hasToken(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
+  isAuthenticatedNow(): boolean {
+    return this.isTokenValid();
+  }
+
+  private isTokenValid(): boolean {
+    const token = localStorage.getItem(this.tokenKey);
+
+    if (!token) {
+      return false;
+    }
+
+    try {
+      const payload = this.decodeJwtPayload(token);
+      const expiresAt = payload.exp;
+
+      if (typeof expiresAt !== 'number') {
+        this.logout();
+        return false;
+      }
+
+      const nowInSeconds = Math.floor(Date.now() / 1000);
+      const isValid = expiresAt > nowInSeconds;
+
+      if (!isValid) {
+        this.logout();
+      }
+
+      return isValid;
+    } catch {
+      this.logout();
+      return false;
+    }
+  }
+
+  private decodeJwtPayload(token: string): { exp?: number } {
+    const payload = token.split('.')[1];
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const paddedPayload = normalizedPayload.padEnd(
+      normalizedPayload.length + (4 - normalizedPayload.length % 4) % 4,
+      '='
+    );
+    const decodedPayload = atob(paddedPayload);
+
+    return JSON.parse(decodedPayload);
   }
 
   // Add this to your existing AuthService
