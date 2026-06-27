@@ -1,5 +1,5 @@
 <div class="container mx-auto px-4 py-8">
-  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+  <div *ngIf="invoice; else loading" class="bg-white shadow-md rounded-lg overflow-hidden">
     <div class="px-6 py-4">
       <h1 class="text-3xl font-bold text-gray-800 mb-4">Invoice Details</h1>
       <div class="grid grid-cols-2 gap-4">
@@ -55,4 +55,10 @@
   </button>
 </div>
   </div>
+
+  <ng-template #loading>
+    <div class="bg-white shadow-md rounded-lg px-6 py-4">
+      <p class="text-lg text-gray-700">Loading invoice...</p>
+    </div>
+  </ng-template>
 </div>

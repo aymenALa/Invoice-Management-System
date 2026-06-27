@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 
 import { ClientInvoicesComponent } from './client-invoices.component';
 
@@ -8,7 +11,22 @@ describe('ClientInvoicesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ClientInvoicesComponent]
+      imports: [ClientInvoicesComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: {
+                get: () => null
+              }
+            }
+          }
+        }
+      ]
     })
     .compileComponents();
     
