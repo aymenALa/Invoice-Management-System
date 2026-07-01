@@ -111,4 +111,16 @@ export class AuthService {
   resetPassword(token: string, newPassword: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/reset-password`, { token, newPassword });
   }
+
+  getProfile(): Observable<any> {
+    return this.http.get('http://localhost:8080/api/user-profile');
+  }
+
+  updateProfile(profile: any): Observable<any> {
+    return this.http.put('http://localhost:8080/api/user-profile', profile);
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.post('http://localhost:8080/api/user-profile/password', { currentPassword, newPassword });
+  }
 }

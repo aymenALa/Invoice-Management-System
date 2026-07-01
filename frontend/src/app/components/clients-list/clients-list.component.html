@@ -77,6 +77,19 @@
             <i class="fa-solid fa-pen-to-square"></i>
             <span class="button-text"></span>
           Edit Client</button>
+          <button (click)="generateAccessCode(client)" class="btn-view-invoices">
+            <i class="fa-solid fa-key"></i>
+            <span class="button-text"></span>
+          Access Code</button>
+          <button (click)="sendAccessCode(client)" class="btn-view-invoices">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span class="button-text"></span>
+          Send Code</button>
+          <button *ngIf="client.portalAccountExists" (click)="toggleClientPortalAccess(client)"
+                  [ngClass]="client.portalAccessEnabled ? 'btn-delete' : 'btn-view-invoices'">
+            <i class="fa-solid" [ngClass]="client.portalAccessEnabled ? 'fa-ban' : 'fa-lock-open'"></i>
+            <span class="button-text"></span>
+          {{ client.portalAccessEnabled ? 'Block Access' : 'Unblock Access' }}</button>
           <button (click)="deleteClient(client.id)" class="btn-delete">
             <i class="fa-solid fa-trash"></i>
             <span class="button-text"></span>

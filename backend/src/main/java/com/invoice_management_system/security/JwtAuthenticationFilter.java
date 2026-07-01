@@ -38,6 +38,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            String accountType = jwtUtil.extractClaim(jwt, claims -> claims.get("accountType", String.class));
+            if ("CLIENT".equals(accountType)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(jwt, userDetails)) {

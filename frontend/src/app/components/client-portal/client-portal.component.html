@@ -1,0 +1,117 @@
+<div class="client-portal-page">
+  <header class="portal-header">
+    <div>
+      <p class="eyebrow">Client Portal</p>
+      <h1>Welcome, {{ client?.name || 'Client' }}</h1>
+      <p>{{ client?.email }}</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="secondary-button" (click)="editProfile()" *ngIf="!isEditingProfile">
+        <i class="fa-solid fa-user-pen"></i>
+        Edit Profile
+      </button>
+      <button type="button" class="secondary-button" (click)="downloadAllInvoicesPdf()" [disabled]="!invoices.length">
+        <i class="fa-solid fa-file-pdf"></i>
+        All PDFs
+      </button>
+      <button type="button" class="logout-button" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <section class="summary-grid">
+    <div>
+      <span>Total Invoices</span>
+      <strong>{{ invoices.length }}</strong>
+    </div>
+    <div>
+      <span>Phone</span>
+      <strong>{{ client?.phoneNumber || '-' }}</strong>
+    </div>
+    <div>
+      <span>Address</span>
+      <strong>{{ client?.address || '-' }}</strong>
+    </div>
+  </section>
+
+  <section class="profile-section" *ngIf="isEditingProfile">
+    <div class="section-heading">
+      <h2>Edit Profile</h2>
+      <p>Email is used for login and cannot be changed here.</p>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
+      <label>
+        <span>Name</span>
+        <input type="text" formControlName="name">
+      </label>
+
+      <label>
+        <span>Email</span>
+        <input type="email" [value]="client?.email || ''" disabled>
+      </label>
+
+      <label>
+        <span>Phone</span>
+        <input type="tel" formControlName="phoneNumber">
+      </label>
+
+      <label>
+        <span>Address</span>
+        <input type="text" formControlName="address">
+      </label>
+
+      <div class="form-actions">
+        <button type="submit" class="secondary-button">
+          <i class="fa-solid fa-check"></i>
+          Save
+        </button>
+        <button type="button" class="logout-button" (click)="cancelEditProfile()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="invoice-section">
+    <h2>Invoices</h2>
+    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+    <p *ngIf="successMessage" class="success-message">{{ successMessage }}</p>
+
+    <table *ngIf="invoices.length; else emptyState">
+      <thead>
+        <tr>
+          <th>Invoice Number</th>
+          <th>Issue Date</th>
+          <th>Due Date</th>
+          <th>Total Amount</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let invoice of invoices">
+          <td>{{ invoice.invoiceNumber }}</td>
+          <td>{{ invoice.issueDate | date }}</td>
+          <td>{{ invoice.dueDate | date }}</td>
+          <td>{{ invoice.totalAmount | currency }}</td>
+          <td>
+            <span class="status" [ngClass]="invoice.status?.toLowerCase()">{{ invoice.status }}</span>
+          </td>
+          <td>
+            <button type="button" class="icon-action" (click)="downloadInvoicePdf(invoice.id)">
+              <i class="fa-solid fa-file-pdf"></i>
+              PDF
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyState>
+      <div class="empty-state">No invoices are available yet.</div>
+    </ng-template>
+  </section>
+</div>

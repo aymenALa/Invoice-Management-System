@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
+import { ClientPortalService } from '../../../services/client-portal.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -12,6 +13,8 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./auth-form.component.css']
 })
 export class AuthFormComponent implements OnInit {
+  accountType: 'user' | 'client' = 'user';
+  clientAuthMode: 'login' | 'activate' = 'login';
   isRightPanelActive = false;
   signUpUsername = '';
   signUpFirstName = '';
@@ -27,9 +30,16 @@ export class AuthFormComponent implements OnInit {
   showForgotPasswordForm = false;
   passwordResetMessage = '';
   passwordResetError = '';
+  clientEmail = '';
+  clientAccessCode = '';
+  clientPassword = '';
+  clientConfirmPassword = '';
+  clientSignInMessage = '';
+  clientSignInError = '';
 
   constructor(
     private authService: AuthService,
+    private clientPortalService: ClientPortalService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -40,6 +50,13 @@ export class AuthFormComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(params => {
       const token = params.get('resetToken');
+      const accountType = params.get('accountType');
+      const clientMessage = params.get('clientMessage');
+
+      if (accountType === 'client') {
+        this.accountType = 'client';
+        this.clientSignInError = clientMessage || '';
+      }
 
       if (token) {
         this.resetToken = token;
@@ -51,6 +68,7 @@ export class AuthFormComponent implements OnInit {
 
   onSignIn() {
     this.signInError = ''; // Clear previous error messages
+    this.clientPortalService.logout();
     this.authService.login(this.signInIdentifier, this.signInPassword).subscribe({
       next: () => {
         console.log('Login successful');
@@ -90,6 +108,67 @@ export class AuthFormComponent implements OnInit {
     console.log('Toggle Panel Clicked');
     this.isRightPanelActive = !this.isRightPanelActive;
     this.closePasswordResetForm();
+  }
+
+  selectAccountType(type: 'user' | 'client') {
+    this.accountType = type;
+    this.isRightPanelActive = false;
+    this.signInError = '';
+    this.signUpError = '';
+    this.clientSignInMessage = '';
+    this.clientSignInError = '';
+    this.closePasswordResetForm();
+  }
+
+  setClientAuthMode(mode: 'login' | 'activate') {
+    this.clientAuthMode = mode;
+    this.clientSignInMessage = '';
+    this.clientSignInError = '';
+    this.clientAccessCode = '';
+    this.clientPassword = '';
+    this.clientConfirmPassword = '';
+  }
+
+  onClientSignIn() {
+    this.clientSignInMessage = '';
+    this.clientSignInError = '';
+    this.authService.logout();
+
+    if (!this.clientEmail || !this.clientPassword) {
+      this.clientSignInError = 'Please enter your email and password.';
+      return;
+    }
+
+    if (this.clientAuthMode === 'activate') {
+      this.activateClientPortal();
+      return;
+    }
+
+    this.clientPortalService.login(this.clientEmail, this.clientPassword).subscribe({
+      next: () => this.router.navigate(['/client-portal']),
+      error: (error) => {
+        this.clientSignInError = error?.error?.message || 'Invalid client email or password.';
+      }
+    });
+  }
+
+  private activateClientPortal() {
+    if (!this.clientAccessCode) {
+      this.clientSignInError = 'Please enter your invitation code.';
+      return;
+    }
+
+    if (this.clientPassword !== this.clientConfirmPassword) {
+      this.clientSignInError = 'Passwords do not match.';
+      return;
+    }
+
+    this.clientPortalService.activate(this.clientEmail, this.clientAccessCode, this.clientPassword).subscribe({
+      next: () => this.router.navigate(['/client-portal']),
+      error: (error) => {
+        this.clientSignInError = error?.error?.message || 'Could not activate the client portal account.';
+      }
+    });
   }
 
   showPasswordResetForm(event: Event) {

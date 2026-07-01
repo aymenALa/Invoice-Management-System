@@ -1,6 +1,9 @@
 package com.invoice_management_system.service;
 
 import com.invoice_management_system.dto.RegistrationRequest;
+import com.invoice_management_system.dto.UserPasswordChangeRequest;
+import com.invoice_management_system.dto.UserProfileResponse;
+import com.invoice_management_system.dto.UserProfileUpdateRequest;
 import com.invoice_management_system.exception.BusinessException;
 import com.invoice_management_system.model.User;
 import com.invoice_management_system.repository.UserRepository;
@@ -136,6 +139,45 @@ public class UserService implements UserDetailsService {
     public void updateLastLogin(User user) {
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
+    }
+
+    public UserProfileResponse getUserProfile(User user) {
+        return toUserProfileResponse(user);
+    }
+
+    public UserProfileResponse updateUserProfile(User user, UserProfileUpdateRequest request) {
+        String email = request.getEmail().trim().toLowerCase();
+
+        userRepository.findByEmail(email)
+                .filter(existingUser -> !existingUser.getId().equals(user.getId()))
+                .ifPresent(existingUser -> {
+                    throw new BusinessException("Email already exists");
+                });
+
+        user.setEmail(email);
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+
+        return toUserProfileResponse(userRepository.save(user));
+    }
+
+    public void changePassword(User user, UserPasswordChangeRequest request) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BusinessException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    private UserProfileResponse toUserProfileResponse(User user) {
+        return new UserProfileResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName()
+        );
     }
 
     private String generateResetToken() {

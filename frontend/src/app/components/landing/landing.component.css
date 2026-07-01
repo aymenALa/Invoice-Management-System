@@ -1,0 +1,286 @@
+:host {
+  display: block;
+}
+
+.landing-page {
+  background: #f5f7fb;
+  color: #13201d;
+  min-height: 100vh;
+}
+
+.hero {
+  background:
+    linear-gradient(90deg, rgba(12, 36, 32, 0.76), rgba(13, 75, 70, 0.38)),
+    url('/assets/57-bg.png') center / cover no-repeat;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 88vh;
+  padding: 24px clamp(18px, 4vw, 64px) 56px;
+}
+
+.landing-nav {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+}
+
+.brand {
+  align-items: center;
+  color: #fff;
+  display: inline-flex;
+  font-size: 22px;
+  font-weight: 900;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand img {
+  background: #fff;
+  border-radius: 8px;
+  height: 42px;
+  object-fit: contain;
+  padding: 4px;
+  width: 42px;
+}
+
+.nav-actions,
+.hero-actions,
+.portal-layout {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+}
+
+.text-link {
+  color: #e8fffb;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.login-button,
+.primary-cta,
+.secondary-cta {
+  align-items: center;
+  border-radius: 6px;
+  display: inline-flex;
+  font-weight: 900;
+  gap: 8px;
+  padding: 12px 16px;
+  text-decoration: none;
+}
+
+.login-button,
+.primary-cta {
+  background: #fff;
+  color: #146958;
+}
+
+.secondary-cta {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+
+.hero-content {
+  margin: auto 0;
+  max-width: 780px;
+  padding-top: 72px;
+}
+
+.eyebrow {
+  color: #27b397;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+
+.hero .eyebrow {
+  color: #baffef;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(44px, 7vw, 86px);
+  font-weight: 950;
+  line-height: 0.98;
+  max-width: 820px;
+}
+
+.hero-copy {
+  color: #e5fffb;
+  font-size: 19px;
+  line-height: 1.65;
+  margin: 22px 0 30px;
+  max-width: 690px;
+}
+
+.section-inner {
+  margin: 0 auto;
+  max-width: 1160px;
+  padding: 64px clamp(18px, 4vw, 32px);
+}
+
+.section-heading {
+  max-width: 720px;
+}
+
+.section-heading h2,
+.workflow-layout h2,
+.portal-layout h2 {
+  color: #12211d;
+  font-size: clamp(30px, 4vw, 46px);
+  font-weight: 950;
+  line-height: 1.08;
+}
+
+.feature-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 34px;
+}
+
+.feature-card {
+  background: #fff;
+  border: 1px solid #dfe7e4;
+  border-radius: 8px;
+  min-height: 218px;
+  padding: 24px;
+}
+
+.feature-card i {
+  color: #27b397;
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.feature-card h3 {
+  font-size: 19px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.feature-card p,
+.workflow-layout p,
+.portal-layout p {
+  color: #52615d;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.workflow-band {
+  background: #fff;
+}
+
+.workflow-layout,
+.portal-layout {
+  display: grid;
+  gap: 34px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
+
+.workflow-layout p,
+.portal-layout p {
+  margin-top: 16px;
+}
+
+.workflow-list {
+  counter-reset: none;
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.workflow-list li {
+  align-items: center;
+  background: #f5f9f8;
+  border: 1px solid #dfe7e4;
+  border-radius: 8px;
+  color: #172621;
+  display: flex;
+  font-weight: 850;
+  gap: 14px;
+  padding: 16px;
+}
+
+.workflow-list span {
+  align-items: center;
+  background: #27b397;
+  border-radius: 6px;
+  color: #fff;
+  display: inline-flex;
+  flex: 0 0 34px;
+  font-weight: 950;
+  height: 34px;
+  justify-content: center;
+}
+
+.portal-band {
+  background: #10211d;
+  color: #fff;
+}
+
+.portal-layout {
+  align-items: center;
+}
+
+.portal-layout h2,
+.portal-layout p {
+  color: #fff;
+}
+
+.portal-layout p {
+  color: #d8efea;
+}
+
+.portal-layout .primary-cta {
+  justify-self: end;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .feature-grid,
+  .workflow-layout,
+  .portal-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-layout .primary-cta {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    min-height: 92vh;
+    padding-bottom: 42px;
+  }
+
+  .landing-nav,
+  .nav-actions,
+  .hero-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .landing-nav {
+    gap: 16px;
+  }
+
+  .hero-content {
+    padding-top: 48px;
+  }
+}

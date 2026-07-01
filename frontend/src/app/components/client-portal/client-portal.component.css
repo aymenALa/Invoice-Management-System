@@ -1,0 +1,230 @@
+.client-portal-page {
+  background: #f6f8fb;
+  color: #1f2937;
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.portal-header {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+}
+
+.eyebrow {
+  color: #27b397;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  align-items: center;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 8px;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.secondary-button {
+  background: #27b397;
+  color: #fff;
+}
+
+.logout-button,
+.icon-action {
+  background: #eef2f7;
+  color: #374151;
+}
+
+.summary-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 20px 0;
+}
+
+.summary-grid div,
+.profile-section,
+.invoice-section {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.profile-section {
+  margin-bottom: 20px;
+}
+
+.section-heading {
+  margin-bottom: 16px;
+}
+
+.section-heading p {
+  color: #6b7280;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.profile-form {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.profile-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.profile-form span {
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.profile-form input {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #1f2937;
+  padding: 10px 12px;
+}
+
+.profile-form input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.form-actions {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  grid-column: 1 / -1;
+}
+
+.summary-grid span {
+  color: #6b7280;
+  display: block;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.summary-grid strong {
+  display: block;
+  font-size: 20px;
+}
+
+.invoice-section h2 {
+  margin-bottom: 16px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 14px;
+  text-align: left;
+}
+
+th {
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.status {
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 5px 10px;
+}
+
+.status.paid {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status.overdue {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.empty-state {
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  color: #6b7280;
+  padding: 28px;
+  text-align: center;
+}
+
+.error-message {
+  color: #dc2626;
+  margin-bottom: 12px;
+}
+
+.success-message {
+  color: #15803d;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 760px) {
+  .client-portal-page {
+    padding: 16px;
+  }
+
+  .portal-header,
+  .header-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-form {
+    grid-template-columns: 1fr;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+}

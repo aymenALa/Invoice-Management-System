@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ClientService {
   private apiUrl = 'http://localhost:8080/api/clients';
+  private clientAuthUrl = 'http://localhost:8080/api/client-auth';
 
   constructor(private http: HttpClient) { }
 
@@ -28,5 +29,29 @@ export class ClientService {
 
   deleteClient(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  generateClientAccessCode(clientId: number): Observable<any> {
+    return this.http.post(`${this.clientAuthUrl}/invite`, { clientId });
+  }
+
+  regenerateClientAccessCode(clientId: number): Observable<any> {
+    return this.http.post(`${this.clientAuthUrl}/invite/regenerate`, { clientId });
+  }
+
+  sendClientAccessCode(clientId: number): Observable<any> {
+    return this.http.post(`${this.clientAuthUrl}/invite/send`, { clientId });
+  }
+
+  getClientPortalAccess(clientId: number): Observable<any> {
+    return this.http.get(`${this.clientAuthUrl}/access/${clientId}`);
+  }
+
+  blockClientPortalAccess(clientId: number): Observable<any> {
+    return this.http.post(`${this.clientAuthUrl}/access/${clientId}/block`, {});
+  }
+
+  unblockClientPortalAccess(clientId: number): Observable<any> {
+    return this.http.post(`${this.clientAuthUrl}/access/${clientId}/unblock`, {});
   }
 }

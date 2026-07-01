@@ -48,7 +48,16 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("accountType", "USER");
         return createToken(claims, userDetails.getUsername());
+    }
+
+    public String generateClientToken(Long clientAccountId, Long clientId, String email) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("accountType", "CLIENT");
+        claims.put("clientAccountId", clientAccountId);
+        claims.put("clientId", clientId);
+        return createToken(claims, email);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -64,5 +73,14 @@ public class JwtUtil {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public Boolean validateClientToken(String token) {
+        return "CLIENT".equals(extractClaim(token, claims -> claims.get("accountType", String.class))) && !isTokenExpired(token);
+    }
+
+    public Long extractClientAccountId(String token) {
+        Number clientAccountId = extractClaim(token, claims -> claims.get("clientAccountId", Number.class));
+        return clientAccountId.longValue();
     }
 }

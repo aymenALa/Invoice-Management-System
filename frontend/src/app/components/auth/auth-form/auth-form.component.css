@@ -15,7 +15,39 @@
   overflow: hidden;
   width: 768px;
   max-width: 100%;
-  min-height: 480px;
+  min-height: 520px;
+}
+
+.account-type {
+  background-color: #f0f7f5;
+  border: 1px solid #d7ece7;
+  border-radius: 999px;
+  display: flex;
+  gap: 4px;
+  left: 25%;
+  padding: 4px;
+  position: absolute;
+  top: 18px;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.account-type button {
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: #35645b;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 78px;
+  padding: 8px 14px;
+}
+
+.account-type button.active {
+  background-color: #27b397;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(39, 179, 151, 0.25);
 }
 
 .form__container {
@@ -29,6 +61,12 @@
   left: 0;
   width: 50%;
   z-index: 2;
+}
+
+.client__container {
+  left: 0;
+  width: 50%;
+  z-index: 3;
 }
 
 .container.right-panel-active .signin__container {
@@ -69,6 +107,12 @@ form {
   padding: 0 50px;
   height: 100%;
   text-align: center;
+}
+
+.signin__container form,
+.signup__container form,
+.client__container form {
+  padding-top: 58px;
 }
 
 h1 {
@@ -113,6 +157,40 @@ input {
   font-size: 14px;
   text-decoration: none;
   margin: 15px 0;
+}
+
+.portal-copy {
+  color: #555;
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 0 0 10px;
+}
+
+.client-mode-tabs {
+  background: #eef7f4;
+  border-radius: 999px;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 4px;
+  width: 100%;
+}
+
+.client-mode-tabs button {
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: #35645b;
+  cursor: pointer;
+  flex: 1;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 10px;
+}
+
+.client-mode-tabs button.active {
+  background: #27b397;
+  color: #fff;
 }
 
 .password-reset-form {
@@ -211,4 +289,11 @@ input {
   color: #1a8870;
   font-size: 0.9em;
   margin-top: 10px;
+}
+
+.info-message {
+  color: #35645b;
+  font-size: 0.9em;
+  line-height: 1.4;
+  margin-top: 12px;
 }

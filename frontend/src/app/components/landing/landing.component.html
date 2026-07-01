@@ -1,0 +1,87 @@
+<main class="landing-page">
+  <section class="hero">
+    <nav class="landing-nav">
+      <a routerLink="/" class="brand">
+        <img src="assets/logo-ims.png" alt="IMS logo">
+        <span>IMS</span>
+      </a>
+      <div class="nav-actions">
+        <a routerLink="/auth" class="text-link">Client access</a>
+        <a routerLink="/auth" class="login-button">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          Login
+        </a>
+      </div>
+    </nav>
+
+    <div class="hero-content">
+      <p class="eyebrow">Invoice Management System</p>
+      <h1>Invoice Management System</h1>
+      <p class="hero-copy">
+        A focused workspace for managing clients, invoices, PDFs, account security, and client self-service without losing control of your business data.
+      </p>
+      <div class="hero-actions">
+        <a routerLink="/auth" class="primary-cta">
+          <i class="fa-solid fa-gauge-high"></i>
+          Open App
+        </a>
+        <a href="#features" class="secondary-cta">
+          <i class="fa-solid fa-arrow-down"></i>
+          Explore Features
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="feature-band">
+    <div class="section-inner">
+      <div class="section-heading">
+        <p class="eyebrow">Built For Daily Work</p>
+        <h2>Everything needed to run invoices and client access from one place</h2>
+      </div>
+
+      <div class="feature-grid">
+        <article *ngFor="let feature of features" class="feature-card">
+          <i class="fa-solid" [ngClass]="feature.icon"></i>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.text }}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="workflow-band">
+    <div class="section-inner workflow-layout">
+      <div>
+        <p class="eyebrow">Workflow</p>
+        <h2>From invoice creation to client delivery</h2>
+        <p>
+          The app keeps internal operations separate from client-facing access, so users manage business records while clients only see what belongs to them.
+        </p>
+      </div>
+
+      <ol class="workflow-list">
+        <li *ngFor="let item of workflow; let i = index">
+          <span>{{ i + 1 }}</span>
+          {{ item }}
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="portal-band">
+    <div class="section-inner portal-layout">
+      <div>
+        <p class="eyebrow">Client Portal</p>
+        <h2>Clients get clarity without getting control of your back office</h2>
+        <p>
+          Clients can activate with an invitation code, view their invoices, download PDF files, and update safe profile information. Users can block or restore portal access at any time.
+        </p>
+      </div>
+      <a routerLink="/auth" class="primary-cta">
+        <i class="fa-solid fa-user-lock"></i>
+        Enter Portal
+      </a>
+    </div>
+  </section>
+</main>

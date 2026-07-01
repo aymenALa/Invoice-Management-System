@@ -16,10 +16,91 @@
           <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
         </button>
         <div *ngIf="isDropdownOpen" class="dropdown-menu absolute right-0 mt-2 bg-white text-gray-800 shadow-lg rounded-lg w-48 py-2 z-10">
-          <a  class="block px-4 py-2 hover:bg-gray-100 transition duration-300">Contact</a>
+          <button type="button" (click)="openSettings()" class="dropdown-item block px-4 py-2 hover:bg-gray-100 transition duration-300">
+            Account Settings
+          </button>
           <a (click)="logout()" class="block px-4 py-2 hover:bg-gray-100 transition duration-300">Logout</a>
         </div>
       </li>
     </ul>
   </div>
 </nav>
+
+<div *ngIf="isSettingsOpen" class="settings-backdrop">
+  <section class="settings-modal">
+    <header class="settings-header">
+      <div>
+        <p>Account</p>
+        <h2>Settings</h2>
+      </div>
+      <button type="button" class="icon-button" (click)="closeSettings()" aria-label="Close account settings">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </header>
+
+    <div class="settings-tabs">
+      <button type="button" [class.active]="activeSettingsTab === 'profile'" (click)="setSettingsTab('profile')">
+        Profile
+      </button>
+      <button type="button" [class.active]="activeSettingsTab === 'password'" (click)="setSettingsTab('password')">
+        Password
+      </button>
+    </div>
+
+    <p *ngIf="settingsError" class="settings-error">{{ settingsError }}</p>
+    <p *ngIf="settingsSuccess" class="settings-success">{{ settingsSuccess }}</p>
+
+    <form *ngIf="activeSettingsTab === 'profile'" [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="settings-form">
+      <label>
+        <span>Username</span>
+        <input type="text" formControlName="username" readonly>
+      </label>
+
+      <label>
+        <span>Email</span>
+        <input type="email" formControlName="email">
+      </label>
+
+      <label>
+        <span>First Name</span>
+        <input type="text" formControlName="firstName">
+      </label>
+
+      <label>
+        <span>Last Name</span>
+        <input type="text" formControlName="lastName">
+      </label>
+
+      <div class="settings-actions">
+        <button type="submit" class="primary-action">
+          <i class="fa-solid fa-check"></i>
+          Save Changes
+        </button>
+      </div>
+    </form>
+
+    <form *ngIf="activeSettingsTab === 'password'" [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="settings-form">
+      <label>
+        <span>Current Password</span>
+        <input type="password" formControlName="currentPassword">
+      </label>
+
+      <label>
+        <span>New Password</span>
+        <input type="password" formControlName="newPassword">
+      </label>
+
+      <label>
+        <span>Confirm New Password</span>
+        <input type="password" formControlName="confirmPassword">
+      </label>
+
+      <div class="settings-actions">
+        <button type="submit" class="primary-action">
+          <i class="fa-solid fa-key"></i>
+          Change Password
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

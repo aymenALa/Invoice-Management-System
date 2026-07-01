@@ -1,5 +1,32 @@
-<div class="container" [class.right-panel-active]="isRightPanelActive">
-  <div class="form__container signup__container">
+<div class="container" [class.right-panel-active]="isRightPanelActive" [class.client-mode]="accountType === 'client'">
+  <div class="account-type" role="group" aria-label="Choose account type">
+    <button type="button" [class.active]="accountType === 'user'" (click)="selectAccountType('user')">User</button>
+    <button type="button" [class.active]="accountType === 'client'" (click)="selectAccountType('client')">Client</button>
+  </div>
+
+  <div class="form__container client__container" *ngIf="accountType === 'client'">
+    <form (ngSubmit)="onClientSignIn()">
+      <h1>{{ clientAuthMode === 'login' ? 'Client Sign In' : 'Activate Portal' }}</h1>
+      <div class="client-mode-tabs" role="group" aria-label="Client authentication mode">
+        <button type="button" [class.active]="clientAuthMode === 'login'" (click)="setClientAuthMode('login')">Login</button>
+        <button type="button" [class.active]="clientAuthMode === 'activate'" (click)="setClientAuthMode('activate')">Activate</button>
+      </div>
+      <p class="portal-copy">
+        {{ clientAuthMode === 'login'
+          ? 'Use your client portal email and password.'
+          : 'Use the invitation code sent by your provider, then choose a password.' }}
+      </p>
+      <input type="email" placeholder="Client Email" [(ngModel)]="clientEmail" name="clientEmail" required>
+      <input *ngIf="clientAuthMode === 'activate'" type="text" placeholder="Invitation Code" [(ngModel)]="clientAccessCode" name="clientAccessCode" required>
+      <input type="password" placeholder="Password" [(ngModel)]="clientPassword" name="clientPassword" required>
+      <input *ngIf="clientAuthMode === 'activate'" type="password" placeholder="Confirm Password" [(ngModel)]="clientConfirmPassword" name="clientConfirmPassword" required>
+      <button type="submit" class="btn">{{ clientAuthMode === 'login' ? 'Sign In' : 'Activate' }}</button>
+      <p *ngIf="clientSignInMessage" class="info-message">{{ clientSignInMessage }}</p>
+      <p *ngIf="clientSignInError" class="error-message">{{ clientSignInError }}</p>
+    </form>
+  </div>
+
+  <div class="form__container signup__container" *ngIf="accountType === 'user'">
     <form (ngSubmit)="onSignUp()">
       <h1>Create Account</h1>
       <input type="text" placeholder="Username" [(ngModel)]="signUpUsername" name="signUpUsername" required>
@@ -11,7 +38,7 @@
       <p *ngIf="signUpError" class="error-message">{{ signUpError }}</p>
     </form>
   </div>
-  <div class="form__container signin__container">
+  <div class="form__container signin__container" *ngIf="accountType === 'user'">
     <form (ngSubmit)="onSignIn()">
       <h1>Sign in</h1>
       <input type="text" placeholder="Username or Email" [(ngModel)]="signInIdentifier" name="signInIdentifier" required>
@@ -57,9 +84,16 @@
         <button class="btn ghost" (click)="togglePanel()">Sign In</button>
       </div>
       <div class="overlay__panel overlay__panel__right">
-        <h1>Hello, Friend!</h1>
-        <p>Enter your personal details and start journey with us</p>
-        <button class="btn ghost" (click)="togglePanel()">Sign Up</button>
+        <ng-container *ngIf="accountType === 'user'; else clientPortalIntro">
+          <h1>Hello, Friend!</h1>
+          <p>Enter your personal details and start journey with us</p>
+          <button class="btn ghost" (click)="togglePanel()">Sign Up</button>
+        </ng-container>
+        <ng-template #clientPortalIntro>
+          <h1>Welcome Client</h1>
+          <p>Your portal will give you a focused view of invoices shared with you.</p>
+          <button class="btn ghost" (click)="selectAccountType('user')">User Login</button>
+        </ng-template>
       </div>
     </div>
   </div>

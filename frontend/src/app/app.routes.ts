@@ -6,10 +6,14 @@ import { InvoiceFormComponent } from './components/invoices/invoice-form/invoice
 import { InvoiceDetailComponent } from './components/invoices/invoice-detail/invoice-detail.component';
 import { ClientInvoicesComponent } from './components/client-invoices/client-invoices.component';
 import { ClientsListComponent } from './components/clients-list/clients-list.component';
+import { ClientPortalComponent } from './components/client-portal/client-portal.component';
+import { LandingComponent } from './components/landing/landing.component';
 import { authGuard } from './guards/auth.guard';
+import { clientAuthGuard } from './guards/client-auth.guard';
 import { noAuthGuard } from './guards/no-auth.guard';
 
 export const routes: Routes = [
+  { path: '', component: LandingComponent },
   { path: 'auth', component: AuthFormComponent, canActivate: [noAuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'invoices', component: InvoiceListComponent, canActivate: [authGuard] },
@@ -18,6 +22,6 @@ export const routes: Routes = [
   { path: 'invoices/:id/edit', component: InvoiceFormComponent, canActivate: [authGuard] },
   { path: 'clients/:id/invoices', component: ClientInvoicesComponent, canActivate: [authGuard] },
   { path: 'clients', component: ClientsListComponent, canActivate: [authGuard] },
-  { path: '', redirectTo: '/auth', pathMatch: 'full' },
-  { path: '**', redirectTo: '/auth', pathMatch: 'full' }
+  { path: 'client-portal', component: ClientPortalComponent, canActivate: [clientAuthGuard] },
+  { path: '**', redirectTo: '/', pathMatch: 'full' }
 ];

@@ -37,9 +37,24 @@ export class ClientsListComponent implements OnInit {
 
   loadClients(): void {
     this.clientService.getClients().subscribe(
-      data => this.clients = data,
+      data => {
+        this.clients = data;
+        this.loadClientPortalAccessStatuses();
+      },
       error => console.error('Error loading clients', error)
     );
+  }
+
+  loadClientPortalAccessStatuses(): void {
+    this.clients.forEach(client => {
+      this.clientService.getClientPortalAccess(client.id).subscribe(
+        status => {
+          client.portalAccountExists = status.portalAccountExists;
+          client.portalAccessEnabled = status.enabled;
+        },
+        error => console.error('Error loading client portal access status', error)
+      );
+    });
   }
 
   viewClientInvoices(clientId: number): void {
@@ -138,6 +153,159 @@ export class ClientsListComponent implements OnInit {
         );
       }
     });
+  }
+
+  generateAccessCode(client: any): void {
+    this.clientService.generateClientAccessCode(client.id).subscribe(
+      response => this.showAccessCodeModal(client, response),
+      error => {
+        Swal.fire({
+          title: 'Error',
+          text: this.getErrorMessage(error, 'Could not generate the client access code.'),
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      }
+    );
+  }
+
+  sendAccessCode(client: any): void {
+    this.clientService.sendClientAccessCode(client.id).subscribe(
+      response => {
+        Swal.fire({
+          title: 'Access Code Sent',
+          html: this.getAccessCodeHtml(client, response, 'The code was sent to the client email.'),
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+      },
+      error => {
+        Swal.fire({
+          title: 'Send Failed',
+          text: this.getErrorMessage(error, 'Could not send the access code. Check your email configuration.'),
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      }
+    );
+  }
+
+  toggleClientPortalAccess(client: any): void {
+    const shouldBlock = client.portalAccessEnabled;
+    const action = shouldBlock ? 'block' : 'unblock';
+
+    Swal.fire({
+      title: shouldBlock ? 'Block client access?' : 'Restore client access?',
+      text: shouldBlock
+        ? 'The client will no longer be able to log in or use the client portal.'
+        : 'The client will be able to log in and use the client portal again.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: shouldBlock ? '#d33' : '#27b397',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: shouldBlock ? 'Block Access' : 'Unblock Access'
+    }).then(result => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      const operation = shouldBlock
+        ? this.clientService.blockClientPortalAccess(client.id)
+        : this.clientService.unblockClientPortalAccess(client.id);
+
+      operation.subscribe(
+        status => {
+          client.portalAccountExists = status.portalAccountExists;
+          client.portalAccessEnabled = status.enabled;
+
+          Swal.fire({
+            title: 'Success',
+            text: `Client portal access ${action}ed successfully.`,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          });
+        },
+        error => {
+          Swal.fire({
+            title: 'Error',
+            text: this.getErrorMessage(error, `Could not ${action} client portal access.`),
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        }
+      );
+    });
+  }
+
+  private showAccessCodeModal(client: any, invite: any): void {
+    Swal.fire({
+      title: 'Client Access Code',
+      html: this.getAccessCodeHtml(client, invite, 'This code stays the same until you regenerate it.'),
+      icon: 'info',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Copy Code',
+      denyButtonText: 'Send Email',
+      cancelButtonText: 'Regenerate'
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.copyAccessCode(invite.invitationCode);
+      } else if (result.isDenied) {
+        this.sendAccessCode(client);
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        this.regenerateAccessCode(client);
+      }
+    });
+  }
+
+  private regenerateAccessCode(client: any): void {
+    this.clientService.regenerateClientAccessCode(client.id).subscribe(
+      response => this.showAccessCodeModal(client, response),
+      error => {
+        Swal.fire({
+          title: 'Error',
+          text: this.getErrorMessage(error, 'Could not regenerate the client access code.'),
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      }
+    );
+  }
+
+  private copyAccessCode(code: string): void {
+    navigator.clipboard?.writeText(code).then(
+      () => {
+        Swal.fire({
+          title: 'Copied',
+          text: 'Access code copied to clipboard.',
+          icon: 'success',
+          timer: 1600,
+          showConfirmButton: false
+        });
+      },
+      () => {
+        Swal.fire({
+          title: 'Access Code',
+          text: code,
+          icon: 'info',
+          confirmButtonText: 'OK'
+        });
+      }
+    );
+  }
+
+  private getAccessCodeHtml(client: any, invite: any, note: string): string {
+    return `
+      <div style="text-align: center;">
+        <p><strong>${client.name}</strong></p>
+        <p>${invite.email}</p>
+        <div style="background: #f0f7f5; border: 1px solid #d7ece7; border-radius: 8px; color: #1a8870; font-size: 28px; font-weight: 800; letter-spacing: 4px; margin: 16px 0; padding: 14px;">
+          ${invite.invitationCode}
+        </div>
+        <p style="color: #4b5563; font-size: 14px;">${note}</p>
+        <p style="color: #6b7280; font-size: 13px;">Expires at: ${invite.expiresAt}</p>
+      </div>
+    `;
   }
 
   private getClientValidationMessage(): string {
