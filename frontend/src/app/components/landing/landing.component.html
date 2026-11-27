@@ -1,87 +1,188 @@
-<main class="landing-page">
-  <section class="hero">
-    <nav class="landing-nav">
-      <a routerLink="/" class="brand">
-        <img src="assets/logo-ims.png" alt="IMS logo">
-        <span>IMS</span>
+<div class="min-h-screen bg-[#0B0F19] text-[#F8FAFC]">
+  <!-- Top Navigation -->
+  <header class="sticky top-0 z-30 border-b border-[#263246]/80 bg-[#0B0F19]/90 backdrop-blur-md">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <a routerLink="/" class="flex items-center gap-3 group">
+        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#6366F1] text-white shadow-sm">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h4m-7 5h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8l-4 4v12a2 2 0 0 0 2 2Z" />
+          </svg>
+        </span>
+        <div>
+          <span class="block text-sm font-bold tracking-tight text-[#F8FAFC]">Invoice Management System</span>
+          <span class="block text-[11px] font-medium text-[#94A3B8]">Financial Operations &amp; Client Portal</span>
+        </div>
       </a>
-      <div class="nav-actions">
-        <a routerLink="/auth" class="text-link">Client access</a>
-        <a routerLink="/auth" class="login-button">
+
+      <div class="flex items-center gap-3">
+        <a routerLink="/auth" [queryParams]="{ accountType: 'client' }" class="hidden sm:inline-flex ims-btn-ghost text-xs sm:text-sm">
+          <i class="fa-solid fa-user-shield text-[#818CF8]"></i>
+          Client Portal
+        </a>
+        <a routerLink="/auth" class="ims-btn-primary text-xs sm:text-sm">
           <i class="fa-solid fa-right-to-bracket"></i>
-          Login
+          Sign In
         </a>
       </div>
-    </nav>
+    </div>
+  </header>
 
-    <div class="hero-content">
-      <p class="eyebrow">Invoice Management System</p>
-      <h1>Invoice Management System</h1>
-      <p class="hero-copy">
-        A focused workspace for managing clients, invoices, PDFs, account security, and client self-service without losing control of your business data.
-      </p>
-      <div class="hero-actions">
-        <a routerLink="/auth" class="primary-cta">
-          <i class="fa-solid fa-gauge-high"></i>
-          Open App
-        </a>
-        <a href="#features" class="secondary-cta">
-          <i class="fa-solid fa-arrow-down"></i>
-          Explore Features
-        </a>
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden border-b border-[#263246]/70">
+    <div class="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:items-center lg:px-8 lg:py-24">
+      <div class="lg:col-span-6">
+        <div class="inline-flex items-center gap-2 rounded-full border border-[#263246] bg-[#131C2B] px-3 py-1 text-xs font-medium text-[#818CF8]">
+          <span class="h-2 w-2 rounded-full bg-[#34D399]"></span>
+          Business Billing &amp; Client Self-Service
+        </div>
+
+        <h1 class="mt-5 text-3xl font-extrabold tracking-tight text-[#F8FAFC] sm:text-5xl sm:leading-[1.1]">
+          Precision invoicing and client portal control in one workspace.
+        </h1>
+
+        <p class="mt-5 max-w-xl text-base leading-relaxed text-[#94A3B8] sm:text-lg">
+          Manage your client directory, issue validated invoices, monitor paid versus outstanding balances, export clean PDFs, and give clients dedicated self-service access without exposing your back office.
+        </p>
+
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a routerLink="/auth" class="ims-btn-primary px-5 py-3">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            Open Business Workspace
+          </a>
+          <a routerLink="/auth" [queryParams]="{ accountType: 'client' }" class="ims-btn-secondary px-5 py-3">
+            <i class="fa-solid fa-user-lock text-[#818CF8]"></i>
+            Enter Client Portal
+          </a>
+          <a href="#features" class="ims-btn-ghost px-4 py-3">
+            Explore Capabilities
+            <i class="fa-solid fa-arrow-down text-xs"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Product Preview Card -->
+      <div class="lg:col-span-6">
+        <div class="ims-card overflow-hidden border-[#263246] bg-[#131C2B] shadow-2xl">
+          <div class="flex items-center justify-between border-b border-[#263246] bg-[#0B0F19]/60 px-4 py-3">
+            <div class="flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-slate-600"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-slate-600"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-slate-600"></span>
+              <span class="ml-2 font-mono text-xs text-[#94A3B8]">workspace / dashboard</span>
+            </div>
+            <span class="ims-badge ims-badge-paid">Live Ledger</span>
+          </div>
+
+          <div class="p-5 space-y-5">
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div class="rounded-lg border border-[#263246] bg-[#0B0F19]/70 p-3">
+                <p class="text-[11px] font-medium text-[#94A3B8]">Paid Revenue</p>
+                <p class="mt-1 font-mono text-base font-bold text-[#34D399]">$20,270.50</p>
+              </div>
+              <div class="rounded-lg border border-[#263246] bg-[#0B0F19]/70 p-3">
+                <p class="text-[11px] font-medium text-[#94A3B8]">Invoiced</p>
+                <p class="mt-1 font-mono text-base font-bold text-[#F8FAFC]">$43,361.50</p>
+              </div>
+              <div class="rounded-lg border border-[#263246] bg-[#0B0F19]/70 p-3">
+                <p class="text-[11px] font-medium text-[#94A3B8]">Outstanding</p>
+                <p class="mt-1 font-mono text-base font-bold text-[#818CF8]">$23,091.00</p>
+              </div>
+              <div class="rounded-lg border border-[#263246] bg-[#0B0F19]/70 p-3">
+                <p class="text-[11px] font-medium text-[#94A3B8]">Overdue</p>
+                <p class="mt-1 font-mono text-base font-bold text-[#F87171]">$8,290.25</p>
+              </div>
+            </div>
+
+            <div class="rounded-lg border border-[#263246] bg-[#0B0F19]/60 overflow-hidden">
+              <div class="flex items-center justify-between border-b border-[#263246] px-4 py-2.5 text-xs font-semibold text-[#94A3B8]">
+                <span>Sample Ledger Structure</span>
+                <span>Status &amp; PDF</span>
+              </div>
+              <div class="divide-y divide-[#263246]/70 text-xs">
+                <div class="flex items-center justify-between px-4 py-2.5">
+                  <div>
+                    <span class="font-mono font-semibold text-[#F8FAFC]">INV-2026-010</span>
+                    <span class="ml-2 text-[#94A3B8]">Northwind Studio</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="font-mono text-[#F8FAFC]">$5,100.00</span>
+                    <span class="ims-badge ims-badge-paid">PAID</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between px-4 py-2.5">
+                  <div>
+                    <span class="font-mono font-semibold text-[#F8FAFC]">INV-2026-009</span>
+                    <span class="ml-2 text-[#94A3B8]">Verdant Labs</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="font-mono text-[#F8FAFC]">$4,600.00</span>
+                    <span class="ims-badge ims-badge-sent">SENT</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between px-4 py-2.5">
+                  <div>
+                    <span class="font-mono font-semibold text-[#F8FAFC]">INV-2026-008</span>
+                    <span class="ml-2 text-[#94A3B8]">Northwind Studio</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="font-mono text-[#F8FAFC]">$2,890.25</span>
+                    <span class="ims-badge ims-badge-overdue">OVERDUE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <section id="features" class="feature-band">
-    <div class="section-inner">
-      <div class="section-heading">
-        <p class="eyebrow">Built For Daily Work</p>
-        <h2>Everything needed to run invoices and client access from one place</h2>
-      </div>
+  <!-- Features Grid -->
+  <section id="features" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+    <div class="max-w-2xl">
+      <p class="text-xs font-semibold uppercase tracking-widest text-[#818CF8]">Core Capabilities</p>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-[#F8FAFC] sm:text-3xl">
+        Built for clean financial operations and strict access boundaries
+      </h2>
+    </div>
 
-      <div class="feature-grid">
-        <article *ngFor="let feature of features" class="feature-card">
+    <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <article *ngFor="let feature of features" class="ims-card p-6 transition-colors hover:border-[#3B4C68]">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg border border-[#263246] bg-[#192338] text-[#818CF8]">
           <i class="fa-solid" [ngClass]="feature.icon"></i>
-          <h3>{{ feature.title }}</h3>
-          <p>{{ feature.text }}</p>
-        </article>
+        </div>
+        <h3 class="mt-4 text-base font-semibold text-[#F8FAFC]">{{ feature.title }}</h3>
+        <p class="mt-2 text-sm leading-relaxed text-[#94A3B8]">{{ feature.text }}</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Workflow Section -->
+  <section class="border-t border-[#263246]/70 bg-[#131C2B]/40">
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div class="max-w-2xl">
+        <p class="text-xs font-semibold uppercase tracking-widest text-[#34D399]">End-to-End Flow</p>
+        <h2 class="mt-2 text-2xl font-bold tracking-tight text-[#F8FAFC]">From client onboarding to verified PDF statements</h2>
+      </div>
+
+      <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div *ngFor="let item of workflow" class="ims-card p-5">
+          <span class="font-mono text-xs font-bold text-[#818CF8]">{{ item.step }}</span>
+          <h3 class="mt-2 text-sm font-semibold text-[#F8FAFC]">{{ item.title }}</h3>
+          <p class="mt-1.5 text-xs leading-relaxed text-[#94A3B8]">{{ item.text }}</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="workflow-band">
-    <div class="section-inner workflow-layout">
-      <div>
-        <p class="eyebrow">Workflow</p>
-        <h2>From invoice creation to client delivery</h2>
-        <p>
-          The app keeps internal operations separate from client-facing access, so users manage business records while clients only see what belongs to them.
-        </p>
+  <!-- Footer -->
+  <footer class="border-t border-[#263246] bg-[#0B0F19]">
+    <div class="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-4 py-8 text-xs text-[#64748B] sm:flex-row sm:items-center sm:px-6 lg:px-8">
+      <p>Invoice Management System &middot; Angular 17 &amp; Spring Boot 3</p>
+      <div class="flex items-center gap-4">
+        <a routerLink="/auth" class="hover:text-[#F8FAFC]">Business Sign In</a>
+        <a routerLink="/auth" [queryParams]="{ accountType: 'client' }" class="hover:text-[#F8FAFC]">Client Portal</a>
       </div>
-
-      <ol class="workflow-list">
-        <li *ngFor="let item of workflow; let i = index">
-          <span>{{ i + 1 }}</span>
-          {{ item }}
-        </li>
-      </ol>
     </div>
-  </section>
-
-  <section class="portal-band">
-    <div class="section-inner portal-layout">
-      <div>
-        <p class="eyebrow">Client Portal</p>
-        <h2>Clients get clarity without getting control of your back office</h2>
-        <p>
-          Clients can activate with an invitation code, view their invoices, download PDF files, and update safe profile information. Users can block or restore portal access at any time.
-        </p>
-      </div>
-      <a routerLink="/auth" class="primary-cta">
-        <i class="fa-solid fa-user-lock"></i>
-        Enter Portal
-      </a>
-    </div>
-  </section>
-</main>
+  </footer>
+</div>

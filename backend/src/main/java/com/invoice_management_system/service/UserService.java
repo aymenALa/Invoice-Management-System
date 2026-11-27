@@ -69,10 +69,10 @@ public class UserService implements UserDetailsService {
 
     public User registerNewUser(RegistrationRequest registrationRequest) {
         if (userRepository.existsByUsername(registrationRequest.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new BusinessException("Username already exists");
         }
         if (userRepository.existsByEmail(registrationRequest.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new BusinessException("Email already exists");
         }
 
         User user = new User();
@@ -190,7 +190,8 @@ public class UserService implements UserDetailsService {
         String resetLink = frontendUrl + "/auth?resetToken=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(mailUsername);
+        String fromAddress = (mailUsername != null && !mailUsername.isBlank()) ? mailUsername : "noreply@ims.local";
+        message.setFrom(fromAddress);
         message.setTo(user.getEmail());
         message.setSubject("Invoice Management System password reset");
         message.setText(

@@ -32,6 +32,6 @@ export class AppComponent {
   }
 
   private updateNavVisibility(url: string): void {
-    this.showAppNav = this.isLoggedIn && url !== '/' && !url.startsWith('/auth');
+    this.showAppNav = this.isLoggedIn && url !== '/' && !url.startsWith('/auth') && !url.startsWith('/client-portal');
   }
 }

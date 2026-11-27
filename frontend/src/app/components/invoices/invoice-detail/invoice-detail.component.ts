@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { InvoiceService } from '../../../services/invoice.service';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-invoice-detail',
@@ -13,12 +13,14 @@ import { RouterModule } from '@angular/router';
 })
 export class InvoiceDetailComponent implements OnInit {
   invoice: any;
+  isLoading = true;
+  errorMessage = '';
 
   constructor(
     private route: ActivatedRoute,
     private invoiceService: InvoiceService,
     public router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -28,36 +30,66 @@ export class InvoiceDetailComponent implements OnInit {
   }
 
   loadInvoice(id: number): void {
-    this.invoiceService.getInvoice(id).subscribe(
-      data => {
+    this.isLoading = true;
+    this.invoiceService.getInvoice(id).subscribe({
+      next: data => {
         this.invoice = data;
-        console.log('Loaded invoice:', this.invoice);
+        this.isLoading = false;
       },
-      error => console.error('Error loading invoice', error)
-    );
+      error: () => {
+        this.isLoading = false;
+        this.errorMessage = 'Invoice not found or access denied.';
+      }
+    });
   }
 
+  statusBadgeClass(status: string): string {
+    switch (status) {
+      case 'PAID': return 'ims-badge ims-badge-paid';
+      case 'SENT': return 'ims-badge ims-badge-sent';
+      case 'OVERDUE': return 'ims-badge ims-badge-overdue';
+      case 'DRAFT': return 'ims-badge ims-badge-draft';
+      default: return 'ims-badge ims-badge-cancelled';
+    }
+  }
 
   downloadPdf(): void {
-    if (this.invoice && this.invoice.id) {
-      this.invoiceService.downloadInvoicePdf(this.invoice.id).subscribe(
-        (blob: Blob) => {
-          const url = window.URL.createObjectURL(blob);
-          window.open(url);
-        },
-        error => console.error('Error downloading PDF', error)
-      );
-    }
+    if (!this.invoice?.id) return;
+    this.invoiceService.downloadInvoicePdf(this.invoice.id).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Invoice-${this.invoice.invoiceNumber || this.invoice.id}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        Swal.fire('Download Failed', 'Could not generate PDF for this invoice.', 'error');
+      }
+    });
   }
 
   deleteInvoice(): void {
-    if (confirm('Are you sure you want to delete this invoice?')) {
-      this.invoiceService.deleteInvoice(this.invoice.id).subscribe(
-        () => {
-          this.router.navigate(['/invoices']);
-        },
-        error => console.error('Error deleting invoice', error)
-      );
-    }
+    if (!this.invoice?.id) return;
+    Swal.fire({
+      title: 'Delete invoice?',
+      text: `Permanently delete invoice ${this.invoice.invoiceNumber}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel'
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.invoiceService.deleteInvoice(this.invoice.id).subscribe({
+          next: () => {
+            this.router.navigate(['/invoices']);
+          },
+          error: error => {
+            Swal.fire('Error', error?.error?.message || 'Could not delete invoice.', 'error');
+          }
+        });
+      }
+    });
   }
 }

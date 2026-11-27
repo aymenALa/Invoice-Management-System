@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { InvoiceService } from '../../../services/invoice.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -9,87 +10,135 @@ import Swal from 'sweetalert2';
   templateUrl: './invoice-list.component.html',
   styleUrls: ['./invoice-list.component.css'],
   standalone: true,
-  imports: [CommonModule, DatePipe, CurrencyPipe]
+  imports: [CommonModule, FormsModule, RouterLink, DatePipe, CurrencyPipe]
 })
 export class InvoiceListComponent implements OnInit {
   invoices: any[] = [];
+  isLoading = true;
+  errorMessage = '';
 
-  constructor(private invoiceService: InvoiceService, public router: Router) { }
+  searchQuery = '';
+  statusFilter = '';
+  sortBy = 'issueDate';
+  sortDir: 'asc' | 'desc' = 'desc';
+  page = 0;
+  size = 10;
+  totalPages = 0;
+  totalElements = 0;
+
+  readonly statuses = ['DRAFT', 'SENT', 'PAID', 'OVERDUE', 'CANCELLED'];
+
+  constructor(private invoiceService: InvoiceService, public router: Router) {}
 
   ngOnInit(): void {
     this.loadInvoices();
   }
 
   loadInvoices(): void {
-    this.invoiceService.getInvoices().subscribe(
-      response => {
-        console.log('Raw response:', response); // Log the raw response
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.invoiceService.getInvoices({
+      page: this.page,
+      size: this.size,
+      sortBy: this.sortBy,
+      sortDir: this.sortDir,
+      invoiceNumber: this.searchQuery.trim() || undefined,
+      status: this.statusFilter || undefined
+    }).subscribe({
+      next: response => {
         if (Array.isArray(response)) {
           this.invoices = response;
-        } else if (response && response.content && Array.isArray(response.content)) {
+          this.totalElements = response.length;
+          this.totalPages = 1;
+        } else if (response && Array.isArray(response.content)) {
           this.invoices = response.content;
+          this.totalElements = response.totalElements ?? response.content.length;
+          this.totalPages = response.totalPages ?? 1;
         } else {
-          console.error('Unexpected response format:', response);
           this.invoices = [];
+          this.totalElements = 0;
+          this.totalPages = 0;
         }
-        console.log('Processed invoices:', this.invoices);
+        this.isLoading = false;
       },
-      error => {
-        console.error('Error loading invoices', error);
-        if (error.error instanceof ErrorEvent) {
-          // Client-side or network error occurred
-          console.error('An error occurred:', error.error.message);
-        } else {
-          // Backend returned an unsuccessful response code
-          console.error(
-            `Backend returned code ${error.status}, ` +
-            `body was: ${error.error}`);
-        }
-      }
-    );
-  }
-
-  deleteInvoice(id: number): void {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You will not be able to recover this invoice!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.invoiceService.deleteInvoice(id).subscribe(
-          () => {
-            console.log('Invoice deleted successfully');
-            this.loadInvoices();
-            Swal.fire(
-              'Deleted!',
-              'The invoice has been deleted.',
-              'success'
-            );
-          },
-          error => {
-            console.error('Error deleting invoice', error);
-            Swal.fire(
-              'Error!',
-              'There was an error deleting the invoice.',
-              'error'
-            );
-          }
-        );
+      error: () => {
+        this.isLoading = false;
+        this.errorMessage = 'Could not load invoices. Please try again.';
       }
     });
   }
 
-  downloadInvoicePdf(id: number): void {
-    this.invoiceService.downloadInvoicePdf(id).subscribe(
-      (blob: Blob) => {
+  applyFilters(): void {
+    this.page = 0;
+    this.loadInvoices();
+  }
+
+  clearFilters(): void {
+    this.searchQuery = '';
+    this.statusFilter = '';
+    this.sortBy = 'issueDate';
+    this.sortDir = 'desc';
+    this.page = 0;
+    this.loadInvoices();
+  }
+
+  changePage(newPage: number): void {
+    if (newPage < 0 || (this.totalPages > 0 && newPage >= this.totalPages)) {
+      return;
+    }
+    this.page = newPage;
+    this.loadInvoices();
+  }
+
+  statusBadgeClass(status: string): string {
+    switch (status) {
+      case 'PAID': return 'ims-badge ims-badge-paid';
+      case 'SENT': return 'ims-badge ims-badge-sent';
+      case 'OVERDUE': return 'ims-badge ims-badge-overdue';
+      case 'DRAFT': return 'ims-badge ims-badge-draft';
+      default: return 'ims-badge ims-badge-cancelled';
+    }
+  }
+
+  deleteInvoice(id: number): void {
+    Swal.fire({
+      title: 'Delete invoice?',
+      text: 'This action permanently removes the invoice record.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete Invoice',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.invoiceService.deleteInvoice(id).subscribe({
+          next: () => {
+            this.loadInvoices();
+            Swal.fire('Deleted', 'The invoice has been deleted.', 'success');
+          },
+          error: error => {
+            const msg = error?.error?.message || error?.error?.error || 'There was an error deleting the invoice.';
+            Swal.fire('Delete Failed', msg, 'error');
+          }
+        });
+      }
+    });
+  }
+
+  downloadInvoicePdf(invoice: any): void {
+    const id = typeof invoice === 'number' ? invoice : invoice.id;
+    const invoiceNum = typeof invoice === 'number' ? String(invoice) : (invoice.invoiceNumber || String(id));
+    this.invoiceService.downloadInvoicePdf(id).subscribe({
+      next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
-        window.open(url);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Invoice-${invoiceNum}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
       },
-      error => console.error('Error downloading PDF', error)
-    );
+      error: () => {
+        Swal.fire('Download Failed', 'Could not generate the invoice PDF.', 'error');
+      }
+    });
   }
 }

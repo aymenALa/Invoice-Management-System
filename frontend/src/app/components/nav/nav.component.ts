@@ -1,5 +1,5 @@
-import { Component, HostListener } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -9,12 +9,14 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.css'],
   standalone: true,
-  imports: [RouterLink, CommonModule, ReactiveFormsModule],
+  imports: [RouterLink, RouterLinkActive, CommonModule, ReactiveFormsModule],
 })
-export class NavComponent {
+export class NavComponent implements OnInit {
   isDropdownOpen = false;
+  isMobileMenuOpen = false;
   isSettingsOpen = false;
   activeSettingsTab: 'profile' | 'password' = 'profile';
+  displayName = 'Account';
   profileForm: FormGroup;
   passwordForm: FormGroup;
   settingsError = '';
@@ -39,8 +41,25 @@ export class NavComponent {
     });
   }
 
+  ngOnInit(): void {
+    this.displayName = this.authService.getUsername() || 'Account';
+    this.authService.displayName$().subscribe(name => {
+      if (name) {
+        this.displayName = name;
+      }
+    });
+  }
+
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen = false;
   }
 
   @HostListener('document:click', ['$event'])
@@ -51,14 +70,24 @@ export class NavComponent {
     }
   }
 
+  @HostListener('document:keydown.escape')
+  onEscapeKey() {
+    this.isDropdownOpen = false;
+    if (this.isSettingsOpen) {
+      this.closeSettings();
+    }
+  }
 
   logout() {
+    this.isDropdownOpen = false;
+    this.isMobileMenuOpen = false;
     this.authService.logout();
     this.router.navigate(['/auth']);
   }
 
   openSettings() {
     this.isDropdownOpen = false;
+    this.isMobileMenuOpen = false;
     this.isSettingsOpen = true;
     this.activeSettingsTab = 'profile';
     this.settingsError = '';
@@ -140,17 +169,12 @@ export class NavComponent {
     if (typeof error?.error === 'string') {
       return error.error;
     }
-
     if (error?.error?.message) {
       return error.error.message;
     }
-
+    if (error?.error?.error) {
+      return error.error.error;
+    }
     return fallback;
   }
 }
-
-  // logout() {
-  //   // Implement logout functionality
-  //   this.router.navigate(['/login']); // Redirect to login or homepage
-  // }
-

@@ -1,6 +1,7 @@
 package com.invoice_management_system.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -76,7 +77,15 @@ public class JwtUtil {
     }
 
     public Boolean validateClientToken(String token) {
-        return "CLIENT".equals(extractClaim(token, claims -> claims.get("accountType", String.class))) && !isTokenExpired(token);
+        try {
+            return "CLIENT".equals(extractClaim(token, claims -> claims.get("accountType", String.class))) && !isTokenExpired(token);
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public String extractAccountType(String token) {
+        return extractClaim(token, claims -> claims.get("accountType", String.class));
     }
 
     public Long extractClientAccountId(String token) {

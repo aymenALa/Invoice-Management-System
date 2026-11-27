@@ -3,7 +3,10 @@ package com.invoice_management_system.service;
 import com.invoice_management_system.exception.BusinessException;
 import com.invoice_management_system.model.Client;
 import com.invoice_management_system.model.User;
+import com.invoice_management_system.repository.ClientInvitationRepository;
+import com.invoice_management_system.repository.ClientPortalAccountRepository;
 import com.invoice_management_system.repository.ClientRepository;
+import com.invoice_management_system.repository.InvoiceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,12 +30,26 @@ class ClientServiceTest {
     @Mock
     private ClientRepository clientRepository;
 
+    @Mock
+    private InvoiceRepository invoiceRepository;
+
+    @Mock
+    private ClientInvitationRepository invitationRepository;
+
+    @Mock
+    private ClientPortalAccountRepository portalAccountRepository;
+
     private ClientService clientService;
     private User user;
 
     @BeforeEach
     void setUp() {
-        clientService = new ClientService(clientRepository);
+        clientService = new ClientService(
+                clientRepository,
+                invoiceRepository,
+                invitationRepository,
+                portalAccountRepository
+        );
         user = new User();
         user.setId(1L);
         user.setUsername("owner");
@@ -44,7 +61,7 @@ class ClientServiceTest {
     void createClientSetsUserAndSavesWhenEmailIsUnique() {
         Client client = client("Acme", "billing@acme.com");
 
-        when(clientRepository.existsByEmailAndUser(client.getEmail(), user)).thenReturn(false);
+        when(clientRepository.existsByEmailIgnoreCaseAndUser("billing@acme.com", user)).thenReturn(false);
         when(clientRepository.save(client)).thenReturn(client);
 
         Client result = clientService.createClient(client, user);
@@ -58,7 +75,7 @@ class ClientServiceTest {
     void createClientThrowsWhenEmailAlreadyExistsForUser() {
         Client client = client("Acme", "billing@acme.com");
 
-        when(clientRepository.existsByEmailAndUser(client.getEmail(), user)).thenReturn(true);
+        when(clientRepository.existsByEmailIgnoreCaseAndUser("billing@acme.com", user)).thenReturn(true);
 
         BusinessException exception = assertThrows(
                 BusinessException.class,
@@ -109,10 +126,13 @@ class ClientServiceTest {
     @Test
     void updateClientUpdatesExistingClientAndSaves() {
         Client existingClient = client("Old name", "old@example.com");
+        existingClient.setId(10L);
         existingClient.setUser(user);
         Client updatedClient = new Client("New name", "new@example.com", "555-0100", "New address", null);
 
         when(clientRepository.findById(10L)).thenReturn(Optional.of(existingClient));
+        when(clientRepository.existsByEmailIgnoreCaseAndUserAndIdNot("new@example.com", user, 10L)).thenReturn(false);
+        when(portalAccountRepository.findByClientId(10L)).thenReturn(Optional.empty());
         when(clientRepository.save(existingClient)).thenReturn(existingClient);
 
         Client result = clientService.updateClient(10L, updatedClient, user);
@@ -126,15 +146,37 @@ class ClientServiceTest {
     }
 
     @Test
-    void deleteClientDeletesClientWhenItBelongsToUser() {
+    void deleteClientDeletesClientWhenItBelongsToUserAndHasNoInvoices() {
         Client client = client("Acme", "billing@acme.com");
+        client.setId(10L);
         client.setUser(user);
 
         when(clientRepository.findById(10L)).thenReturn(Optional.of(client));
+        when(invoiceRepository.existsByClientIdAndUser(10L, user)).thenReturn(false);
 
         clientService.deleteClient(10L, user);
 
+        verify(invitationRepository).deleteByClientId(10L);
+        verify(portalAccountRepository).deleteByClientId(10L);
         verify(clientRepository).delete(client);
+    }
+
+    @Test
+    void deleteClientThrowsWhenClientHasInvoices() {
+        Client client = client("Acme", "billing@acme.com");
+        client.setId(10L);
+        client.setUser(user);
+
+        when(clientRepository.findById(10L)).thenReturn(Optional.of(client));
+        when(invoiceRepository.existsByClientIdAndUser(10L, user)).thenReturn(true);
+
+        BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> clientService.deleteClient(10L, user)
+        );
+
+        assertEquals("Cannot delete client with existing invoices. Delete or reassign their invoices first.", exception.getMessage());
+        verify(clientRepository, never()).delete(any(Client.class));
     }
 
     private Client client(String name, String email) {

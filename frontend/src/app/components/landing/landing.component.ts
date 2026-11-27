@@ -13,30 +13,56 @@ export class LandingComponent {
   features = [
     {
       icon: 'fa-file-invoice-dollar',
-      title: 'Invoice Control',
-      text: 'Create, edit, filter, export, and download invoice PDFs from one organized workspace.'
+      title: 'Invoice Lifecycle Control',
+      text: 'Create, edit, search, filter, and track invoices across DRAFT, SENT, PAID, OVERDUE, and CANCELLED statuses with server-side validation.'
     },
     {
-      icon: 'fa-users',
-      title: 'Client Management',
-      text: 'Keep every client profile, contact detail, invoice history, and access state connected.'
+      icon: 'fa-chart-line',
+      title: 'Accurate Financial Overview',
+      text: 'Separate paid revenue, total invoiced volume, outstanding balances, and overdue exposure with real-time aggregations and charts.'
+    },
+    {
+      icon: 'fa-users-gear',
+      title: 'Client Directory & Isolation',
+      text: 'Manage client profiles, inspect per-client invoice history, and enforce strict account-level ownership and deletion integrity.'
     },
     {
       icon: 'fa-shield-halved',
-      title: 'Secure Access',
-      text: 'Separate user and client authentication keeps business controls and client views cleanly divided.'
+      title: 'Client Self-Service Portal',
+      text: 'Invite clients with time-limited activation codes, let them view their own invoices, and block or restore portal access instantly.'
     },
     {
-      icon: 'fa-paper-plane',
-      title: 'Client Portal',
-      text: 'Invite clients with access codes so they can view invoices, download PDFs, and update safe profile details.'
+      icon: 'fa-file-pdf',
+      title: 'Print-Ready PDF Exports',
+      text: 'Generate structured, print-friendly single-invoice documents and multi-invoice client statements directly from the backend.'
+    },
+    {
+      icon: 'fa-lock',
+      title: 'Role-Separated Authentication',
+      text: 'Business users and client portal accounts authenticate with separate JWT claims and isolated routes.'
     }
   ];
 
   workflow = [
-    'Create clients and invoices',
-    'Send portal access codes',
-    'Track invoice status and revenue',
-    'Let clients download their own documents'
+    {
+      step: '01',
+      title: 'Configure your business workspace',
+      text: 'Register your business account, manage profile credentials, and add clients to your directory.'
+    },
+    {
+      step: '02',
+      title: 'Issue and track invoices',
+      text: 'Generate numbered invoices with validated issue/due dates, monetary precision, and status tracking.'
+    },
+    {
+      step: '03',
+      title: 'Share client portal access',
+      text: 'Generate or email an 8-character invitation code so clients can activate their own read-only invoice portal.'
+    },
+    {
+      step: '04',
+      title: 'Export statements & monitor cashflow',
+      text: 'Download clean PDFs for any invoice or client statement and review monthly invoiced vs. paid trends.'
+    }
   ];
 }

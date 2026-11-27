@@ -3,12 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
 import { ClientPortalService } from '../../../services/client-portal.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-auth-form',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, RouterLink],
   templateUrl: './auth-form.component.html',
   styleUrls: ['./auth-form.component.css']
 })
@@ -37,15 +37,17 @@ export class AuthFormComponent implements OnInit {
   clientSignInMessage = '';
   clientSignInError = '';
 
+  signInError = '';
+  signUpError = '';
+  signUpSuccess = '';
+  isSubmitting = false;
+
   constructor(
     private authService: AuthService,
     private clientPortalService: ClientPortalService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
-
-  signInError = '';
-  signUpError = '';
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(params => {
@@ -59,6 +61,7 @@ export class AuthFormComponent implements OnInit {
       }
 
       if (token) {
+        this.accountType = 'user';
         this.resetToken = token;
         this.showForgotPasswordForm = true;
         this.isRightPanelActive = false;
@@ -67,46 +70,59 @@ export class AuthFormComponent implements OnInit {
   }
 
   onSignIn() {
-    this.signInError = ''; // Clear previous error messages
+    this.signInError = '';
+    if (!this.signInIdentifier.trim() || !this.signInPassword) {
+      this.signInError = 'Please enter your username/email and password.';
+      return;
+    }
+
+    this.isSubmitting = true;
     this.clientPortalService.logout();
-    this.authService.login(this.signInIdentifier, this.signInPassword).subscribe({
+    this.authService.login(this.signInIdentifier.trim(), this.signInPassword).subscribe({
       next: () => {
-        console.log('Login successful');
+        this.isSubmitting = false;
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
-        console.error('Login failed', err);
-        this.signInError = 'Invalid username/email or password';
+        this.isSubmitting = false;
+        this.signInError = err?.error?.message || 'Invalid username/email or password.';
       }
     });
   }
 
   onSignUp() {
-    this.signUpError = ''; // Clear previous error messages
+    this.signUpError = '';
+    this.signUpSuccess = '';
+    if (!this.signUpUsername.trim() || !this.signUpEmail.trim() || !this.signUpPassword) {
+      this.signUpError = 'Username, email, and password are required.';
+      return;
+    }
+
+    this.isSubmitting = true;
     this.authService.register(
-      this.signUpUsername,
-      this.signUpFirstName,
-      this.signUpLastName,
-      this.signUpEmail,
+      this.signUpUsername.trim(),
+      this.signUpFirstName.trim(),
+      this.signUpLastName.trim(),
+      this.signUpEmail.trim(),
       this.signUpPassword
     ).subscribe({
-      next: (response) => {
-        console.log('Registration successful', response);
-        this.togglePanel(); // Switch to login panel after successful registration
+      next: () => {
+        this.isSubmitting = false;
+        this.signUpSuccess = 'Account created. You can sign in now.';
+        this.signInIdentifier = this.signUpUsername.trim();
+        this.isRightPanelActive = false;
       },
       error: (error) => {
-        console.error('Registration failed', error);
-        this.signUpError = 'Registration failed. Please try again.';
-        if (error.error && error.error.message) {
-          this.signUpError = error.error.message;
-        }
+        this.isSubmitting = false;
+        this.signUpError = error?.error?.message || error?.error?.error || (typeof error?.error === 'string' ? error.error : 'Registration failed. Please verify your details.');
       }
     });
   }
 
   togglePanel() {
-    console.log('Toggle Panel Clicked');
     this.isRightPanelActive = !this.isRightPanelActive;
+    this.signInError = '';
+    this.signUpError = '';
     this.closePasswordResetForm();
   }
 
@@ -115,6 +131,7 @@ export class AuthFormComponent implements OnInit {
     this.isRightPanelActive = false;
     this.signInError = '';
     this.signUpError = '';
+    this.signUpSuccess = '';
     this.clientSignInMessage = '';
     this.clientSignInError = '';
     this.closePasswordResetForm();
@@ -134,7 +151,7 @@ export class AuthFormComponent implements OnInit {
     this.clientSignInError = '';
     this.authService.logout();
 
-    if (!this.clientEmail || !this.clientPassword) {
+    if (!this.clientEmail.trim() || !this.clientPassword) {
       this.clientSignInError = 'Please enter your email and password.';
       return;
     }
@@ -144,16 +161,21 @@ export class AuthFormComponent implements OnInit {
       return;
     }
 
-    this.clientPortalService.login(this.clientEmail, this.clientPassword).subscribe({
-      next: () => this.router.navigate(['/client-portal']),
+    this.isSubmitting = true;
+    this.clientPortalService.login(this.clientEmail.trim(), this.clientPassword).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.router.navigate(['/client-portal']);
+      },
       error: (error) => {
+        this.isSubmitting = false;
         this.clientSignInError = error?.error?.message || 'Invalid client email or password.';
       }
     });
   }
 
   private activateClientPortal() {
-    if (!this.clientAccessCode) {
+    if (!this.clientAccessCode.trim()) {
       this.clientSignInError = 'Please enter your invitation code.';
       return;
     }
@@ -163,9 +185,14 @@ export class AuthFormComponent implements OnInit {
       return;
     }
 
-    this.clientPortalService.activate(this.clientEmail, this.clientAccessCode, this.clientPassword).subscribe({
-      next: () => this.router.navigate(['/client-portal']),
+    this.isSubmitting = true;
+    this.clientPortalService.activate(this.clientEmail.trim(), this.clientAccessCode.trim(), this.clientPassword).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.router.navigate(['/client-portal']);
+      },
       error: (error) => {
+        this.isSubmitting = false;
         this.clientSignInError = error?.error?.message || 'Could not activate the client portal account.';
       }
     });
@@ -197,16 +224,19 @@ export class AuthFormComponent implements OnInit {
     this.passwordResetMessage = '';
     this.passwordResetError = '';
 
-    if (!this.forgotPasswordEmail) {
+    if (!this.forgotPasswordEmail.trim()) {
       this.passwordResetError = 'Please enter your email address.';
       return;
     }
 
-    this.authService.requestPasswordReset(this.forgotPasswordEmail).subscribe({
+    this.isSubmitting = true;
+    this.authService.requestPasswordReset(this.forgotPasswordEmail.trim()).subscribe({
       next: () => {
+        this.isSubmitting = false;
         this.passwordResetMessage = 'If that email exists, a reset link was sent.';
       },
       error: () => {
+        this.isSubmitting = false;
         this.passwordResetError = 'Could not send the reset email. Please try again later.';
       }
     });
@@ -226,8 +256,10 @@ export class AuthFormComponent implements OnInit {
       return;
     }
 
+    this.isSubmitting = true;
     this.authService.resetPassword(this.resetToken, this.newPassword).subscribe({
       next: () => {
+        this.isSubmitting = false;
         this.passwordResetMessage = 'Password updated. You can sign in now.';
         this.resetToken = '';
         this.newPassword = '';
@@ -235,7 +267,8 @@ export class AuthFormComponent implements OnInit {
         this.router.navigate(['/auth']);
       },
       error: (error) => {
-        this.passwordResetError = error?.error?.error || 'The reset link is invalid or expired.';
+        this.isSubmitting = false;
+        this.passwordResetError = error?.error?.error || error?.error?.message || 'The reset link is invalid or expired.';
       }
     });
   }

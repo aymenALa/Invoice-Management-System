@@ -1,21 +1,48 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+
+export interface InvoiceQueryParams {
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDir?: 'asc' | 'desc';
+  invoiceNumber?: string;
+  status?: string;
+  clientId?: number;
+  minAmount?: number;
+  maxAmount?: number;
+  startDate?: string;
+  endDate?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class InvoiceService {
-  private apiUrl = 'http://localhost:8080/api/invoices';
+  private apiUrl = `${environment.apiBaseUrl}/invoices`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getInvoices(): Observable<any> {
-    return this.http.get(this.apiUrl);
+  getInvoices(query?: InvoiceQueryParams): Observable<any> {
+    let params = new HttpParams();
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params = params.set(key, String(value));
+        }
+      });
+    }
+    return this.http.get(this.apiUrl, { params });
   }
 
   getInvoice(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}`);
+  }
+
+  getClientInvoices(clientId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/clients/${clientId}`);
   }
 
   createInvoice(invoice: any): Observable<any> {
