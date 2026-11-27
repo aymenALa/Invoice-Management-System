@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:demo": "ng serve --configuration demo --port 4201",
     "build": "ng build",
+    "build:demo": "ng build --configuration demo",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -20,6 +22,7 @@
     "@angular/router": "^17.2.0",
     "@fortawesome/fontawesome-free": "^6.6.0",
     "chart.js": "^4.4.3",
+    "jspdf": "^4.2.1",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.12.3",
     "tslib": "^2.3.0",

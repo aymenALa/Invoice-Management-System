@@ -1,1 +1,33 @@
-/* Styles handled via Tailwind utility classes and global design tokens */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, rgba(38, 50, 70, 0.32) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(38, 50, 70, 0.32) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 35%, transparent 80%);
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-stagger {
+  animation: fadeSlideUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-preview {
+  animation: fadeSlideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-stagger,
+  .hero-preview {
+    animation: none !important;
+  }
+}

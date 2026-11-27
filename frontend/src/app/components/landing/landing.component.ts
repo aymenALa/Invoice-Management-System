@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-landing',
@@ -10,59 +11,64 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./landing.component.css']
 })
 export class LandingComponent {
-  features = [
-    {
-      icon: 'fa-file-invoice-dollar',
-      title: 'Invoice Lifecycle Control',
-      text: 'Create, edit, search, filter, and track invoices across DRAFT, SENT, PAID, OVERDUE, and CANCELLED statuses with server-side validation.'
-    },
-    {
-      icon: 'fa-chart-line',
-      title: 'Accurate Financial Overview',
-      text: 'Separate paid revenue, total invoiced volume, outstanding balances, and overdue exposure with real-time aggregations and charts.'
-    },
-    {
-      icon: 'fa-users-gear',
-      title: 'Client Directory & Isolation',
-      text: 'Manage client profiles, inspect per-client invoice history, and enforce strict account-level ownership and deletion integrity.'
-    },
+  readonly isDemoMode = environment.demoMode;
+  readonly githubUrl = 'https://github.com/aymenALa/Invoice-Management-System';
+
+  techStack = [
+    { name: 'Angular 17', role: 'Standalone SPA' },
+    { name: 'TypeScript', role: 'Strict Typing' },
+    { name: 'Tailwind CSS', role: 'Design System' },
+    { name: 'Chart.js', role: 'Financial Charts' },
+    { name: 'Java 21', role: 'Runtime' },
+    { name: 'Spring Boot 3.2', role: 'REST API' },
+    { name: 'Spring Security', role: 'JWT & RBAC' },
+    { name: 'PostgreSQL', role: 'Relational Store' },
+    { name: 'iText 7', role: 'PDF Engine' }
+  ];
+
+  securityControls = [
     {
       icon: 'fa-shield-halved',
-      title: 'Client Self-Service Portal',
-      text: 'Invite clients with time-limited activation codes, let them view their own invoices, and block or restore portal access instantly.'
+      title: 'Separate Business & Client JWTs',
+      text: 'Business users (USER) and client portal accounts (CLIENT) receive distinct JWT claims. JwtAuthenticationFilter explicitly rejects client tokens from back-office endpoints.'
     },
     {
-      icon: 'fa-file-pdf',
-      title: 'Print-Ready PDF Exports',
-      text: 'Generate structured, print-friendly single-invoice documents and multi-invoice client statements directly from the backend.'
+      icon: 'fa-key',
+      title: 'SecureRandom Invitations & BCrypt',
+      text: '8-character invitation codes are generated via SecureRandom, stored as BCrypt hashes, expire in 7 days, and are invalidated upon single-use activation or regeneration.'
     },
     {
-      icon: 'fa-lock',
-      title: 'Role-Separated Authentication',
-      text: 'Business users and client portal accounts authenticate with separate JWT claims and isolated routes.'
+      icon: 'fa-ban',
+      title: 'Immediate Blocked-Account Enforcement',
+      text: 'Every client portal request re-verifies account.isEnabled() in PostgreSQL, immediately revoking access for blocked accounts even if a prior JWT has not expired.'
+    },
+    {
+      icon: 'fa-user-lock',
+      title: 'Ownership & Restricted Updates',
+      text: 'Every invoice and client query enforces user ownership. Client portal profile updates are restricted to safe contact fields via dedicated DTOs.'
     }
   ];
 
-  workflow = [
+  invitationSteps = [
     {
       step: '01',
-      title: 'Configure your business workspace',
-      text: 'Register your business account, manage profile credentials, and add clients to your directory.'
+      title: 'Generate Code',
+      text: 'Create an 8-character SecureRandom invitation code with a 7-day TTL from the client directory.'
     },
     {
       step: '02',
-      title: 'Issue and track invoices',
-      text: 'Generate numbered invoices with validated issue/due dates, monetary precision, and status tracking.'
+      title: 'Deliver / Demo Inbox',
+      text: 'Send via Spring Mail SMTP in full-stack mode, or inspect the simulated message in Demo Inbox.'
     },
     {
       step: '03',
-      title: 'Share client portal access',
-      text: 'Generate or email an 8-character invitation code so clients can activate their own read-only invoice portal.'
+      title: 'Activate Portal',
+      text: 'Client enters their email, code, and chosen password; the code is hashed and marked consumed.'
     },
     {
       step: '04',
-      title: 'Export statements & monitor cashflow',
-      text: 'Download clean PDFs for any invoice or client statement and review monthly invoiced vs. paid trends.'
+      title: 'Self-Service & Control',
+      text: 'Client views invoices and downloads PDFs while the business user can block or restore access anytime.'
     }
   ];
 }

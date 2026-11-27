@@ -42,6 +42,10 @@ export class ClientPortalService {
     this.isAuthenticatedSubject.next(false);
   }
 
+  setDemoSession(response: ClientAuthResponse): void {
+    this.storeSession(response);
+  }
+
   isAuthenticated(): Observable<boolean> {
     this.isAuthenticatedSubject.next(this.isTokenPresent());
     return this.isAuthenticatedSubject.asObservable();

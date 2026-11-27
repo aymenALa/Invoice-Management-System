@@ -47,6 +47,14 @@ export class AuthService {
     this.usernameSubject.next(null);
   }
 
+  setDemoSession(token: string, username: string, displayName?: string): void {
+    localStorage.setItem(this.tokenKey, token);
+    localStorage.setItem(this.usernameKey, username);
+    localStorage.setItem(this.displayNameKey, displayName || username);
+    this.isAuthenticatedSubject.next(true);
+    this.usernameSubject.next(displayName || username);
+  }
+
   isAuthenticated(): Observable<boolean> {
     this.isAuthenticatedSubject.next(this.isTokenValid());
     return this.isAuthenticatedSubject.asObservable();

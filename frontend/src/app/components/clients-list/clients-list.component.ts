@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-clients-list',
@@ -197,9 +198,16 @@ export class ClientsListComponent implements OnInit {
   sendAccessCode(client: any): void {
     this.clientService.sendClientAccessCode(client.id).subscribe({
       next: response => {
+        const isDemo = environment.demoMode;
         Swal.fire({
-          title: 'Access Code Sent',
-          html: this.getAccessCodeHtml(client, response, 'The code was sent to the client email.'),
+          title: isDemo ? 'Simulated Email Created' : 'Access Code Sent',
+          html: this.getAccessCodeHtml(
+            client,
+            response,
+            isDemo
+              ? 'Simulated invitation email added to Demo Inbox (no external email was sent).'
+              : 'The code was sent to the client email.'
+          ),
           icon: 'success',
           confirmButtonText: 'OK'
         });

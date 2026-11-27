@@ -1,0 +1,70 @@
+<div class="border-b border-[#263246] bg-[#0F172A] text-xs text-[#F8FAFC]" data-testid="demo-toolbar">
+  <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-3 py-2 sm:px-6 lg:px-8">
+    <!-- Active Role & Switcher -->
+    <div class="flex flex-wrap items-center gap-2">
+      <span
+        [class]="activeRole === 'BUSINESS' ? 'ims-badge-sent' : activeRole === 'CLIENT' ? 'ims-badge-paid' : 'ims-badge-draft'"
+        class="ims-badge shrink-0">
+        {{ activeLabel }}
+      </span>
+
+      <button
+        type="button"
+        (click)="switchToBusiness()"
+        [class]="activeRole === 'BUSINESS' ? 'bg-[#6366F1] text-white border-[#6366F1]' : 'bg-[#131C2B] text-[#94A3B8] border-[#263246] hover:text-[#F8FAFC]'"
+        class="inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2.5 py-1 font-semibold transition-colors">
+        <i class="fa-solid fa-briefcase"></i>
+        <span>Business</span>
+      </button>
+
+      <div class="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#263246] bg-[#131C2B] p-0.5">
+        <button
+          type="button"
+          (click)="switchToClient()"
+          [disabled]="!selectedClientId"
+          [class]="activeRole === 'CLIENT' ? 'bg-emerald-600 text-white' : 'text-[#94A3B8] hover:text-[#F8FAFC]'"
+          class="inline-flex shrink-0 items-center gap-1.5 rounded px-2 py-0.5 font-semibold transition-colors">
+          <i class="fa-solid fa-user-shield"></i>
+          <span>Client</span>
+        </button>
+        <select
+          aria-label="Select eligible client portal account"
+          [(ngModel)]="selectedClientId"
+          (ngModelChange)="switchToClient($event)"
+          class="max-w-[140px] sm:max-w-[180px] rounded bg-[#0B0F19] px-1.5 py-0.5 text-[11px] text-[#F8FAFC] border border-[#263246] focus:outline-none">
+          <option *ngFor="let c of eligibleClients" [ngValue]="c.clientId">{{ c.name }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Demo Inbox, Info & Reset -->
+    <div class="flex flex-wrap items-center gap-2">
+      <a
+        routerLink="/demo/inbox"
+        class="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-[#263246] bg-[#131C2B] px-2.5 py-1 font-medium text-[#F8FAFC] hover:border-[#6366F1] transition-colors">
+        <i class="fa-solid fa-inbox text-[#818CF8]"></i>
+        <span>Demo Inbox</span>
+        <span *ngIf="unreadCount > 0" class="rounded-full bg-[#6366F1] px-1.5 py-0.2 text-[10px] font-bold text-white">
+          {{ unreadCount }}
+        </span>
+      </a>
+
+      <button
+        type="button"
+        (click)="openWelcome.emit()"
+        aria-label="Open demo information"
+        class="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-[#263246] bg-[#131C2B] px-2.5 py-1 font-medium text-[#94A3B8] hover:text-[#F8FAFC] transition-colors">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>Info</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="resetDemo()"
+        class="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-red-500/30 bg-red-500/10 px-2.5 py-1 font-medium text-red-300 hover:bg-red-500/20 transition-colors">
+        <i class="fa-solid fa-rotate-left"></i>
+        <span>Reset</span>
+      </button>
+    </div>
+  </div>
+</div>

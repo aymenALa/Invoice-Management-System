@@ -5,7 +5,10 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +23,24 @@ public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String secret;
+
+    private final Environment environment;
+
+    public JwtUtil(Environment environment) {
+        this.environment = environment;
+    }
+
+    public JwtUtil() {
+        this.environment = null;
+    }
+
+    @PostConstruct
+    void validateProductionSecret() {
+        boolean isProd = environment != null && environment.acceptsProfiles(Profiles.of("prod"));
+        if (isProd && (secret == null || secret.isBlank() || secret.contains("change-me") || secret.length() < 32)) {
+            throw new IllegalStateException("Production profile requires a strong JWT_SECRET environment variable (min 32 chars).");
+        }
+    }
 
     private Key getSigningKey() {
         byte[] keyBytes = secret.getBytes();
