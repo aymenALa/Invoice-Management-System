@@ -1,64 +1,74 @@
-<div class="container mx-auto px-4 py-8">
-  <div *ngIf="invoice; else loading" class="bg-white shadow-md rounded-lg overflow-hidden">
-    <div class="px-6 py-4">
-      <h1 class="text-3xl font-bold text-gray-800 mb-4">Invoice Details</h1>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <p class="text-sm font-medium text-gray-500">Invoice Number</p>
-          <p class="mt-1 text-lg text-gray-900">{{ invoice.invoiceNumber }}</p>
+<div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <a routerLink="/invoices" class="inline-flex items-center gap-1.5 text-xs font-medium text-[#94A3B8] hover:text-[#F8FAFC]">
+      <i class="fa-solid fa-arrow-left"></i>
+      Back to Invoices
+    </a>
+
+    <div *ngIf="invoice" class="flex flex-wrap items-center gap-2">
+      <button type="button" (click)="downloadPdf()" class="ims-btn-secondary">
+        <i class="fa-solid fa-file-pdf text-emerald-400"></i>
+        Download PDF
+      </button>
+      <a [routerLink]="['/invoices', invoice.id, 'edit']" class="ims-btn-primary">
+        <i class="fa-solid fa-pen"></i>
+        Edit
+      </a>
+      <button type="button" (click)="deleteInvoice()" class="ims-btn-danger">
+        <i class="fa-solid fa-trash"></i>
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="ims-card p-8 space-y-4">
+    <div class="ims-skeleton h-8 w-48"></div>
+    <div class="ims-skeleton h-24 w-full"></div>
+  </div>
+
+  <div *ngIf="errorMessage" class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="invoice && !isLoading" class="ims-card overflow-hidden">
+    <div class="border-b border-[#263246] bg-[#0B0F19]/60 px-6 py-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">Invoice Record</p>
+        <h1 class="mt-1 font-mono text-2xl font-bold text-[#F8FAFC]">{{ invoice.invoiceNumber }}</h1>
+      </div>
+      <span [class]="statusBadgeClass(invoice.status)">{{ invoice.status }}</span>
+    </div>
+
+    <div class="p-6 space-y-6">
+      <div class="grid gap-6 sm:grid-cols-2">
+        <div class="rounded-xl border border-[#263246] bg-[#0B0F19]/50 p-4">
+          <p class="text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">Billed To</p>
+          <p class="mt-2 text-base font-semibold text-[#F8FAFC]">{{ invoice.client?.name || 'Unassigned Client' }}</p>
+          <p *ngIf="invoice.client?.email" class="mt-1 text-xs text-[#94A3B8]">{{ invoice.client.email }}</p>
+          <p *ngIf="invoice.client?.phoneNumber" class="mt-0.5 text-xs text-[#94A3B8]">{{ invoice.client.phoneNumber }}</p>
+          <p *ngIf="invoice.client?.address" class="mt-0.5 text-xs text-[#64748B]">{{ invoice.client.address }}</p>
         </div>
-        <div>
-          <p class="text-sm font-medium text-gray-500">Client</p>
-          <p class="mt-1 text-lg text-gray-900">
-            {{ invoice.client?.name || 'No client assigned' }}
-          </p>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-gray-500">Issue Date</p>
-          <p class="mt-1 text-lg text-gray-900">{{ invoice.issueDate | date }}</p>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-gray-500">Due Date</p>
-          <p class="mt-1 text-lg text-gray-900">{{ invoice.dueDate | date }}</p>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-gray-500">Total Amount</p>
-          <p class="mt-1 text-lg text-gray-900">{{ invoice.totalAmount | currency }}</p>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-gray-500">Status</p>
-          <p class="mt-1">
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                  [ngClass]="{
-                    'bg-green-100 text-green-800': invoice.status === 'PAID',
-                    'bg-yellow-100 text-yellow-800': invoice.status === 'PENDING',
-                    'bg-red-100 text-red-800': invoice.status === 'OVERDUE'
-                  }">
-              {{ invoice.status }}
+
+        <div class="rounded-xl border border-[#263246] bg-[#0B0F19]/50 p-4 flex flex-col justify-between">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">Issue Date</p>
+              <p class="mt-1 text-sm font-medium text-[#F8FAFC]">{{ invoice.issueDate | date:'MMM d, y' }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">Due Date</p>
+              <p class="mt-1 text-sm font-medium text-[#F8FAFC]">{{ invoice.dueDate | date:'MMM d, y' }}</p>
+            </div>
+          </div>
+
+          <div class="mt-4 border-t border-[#263246] pt-3 flex items-baseline justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">Total Amount</span>
+            <span class="font-mono text-2xl font-bold text-[#818CF8]">
+              {{ invoice.totalAmount | currency:'USD':'symbol':'1.2-2' }}
             </span>
-          </p>
+          </div>
         </div>
       </div>
     </div>
-    <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-4">
-  <button (click)="router.navigate(['/invoices', invoice.id, 'edit'])" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-    <i class="fa-regular fa-pen-to-square"></i>
-  </button>
-  <button (click)="deleteInvoice()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-      <i class="fa-solid fa-trash"></i>
-  </button>
-  <button (click)="downloadPdf()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-      <i class="fa-solid fa-file-pdf"></i>
-  </button>
-  <button (click)="router.navigate(['/invoices'])" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
-    <i class="fa-solid fa-backward"></i> Back to List
-  </button>
-</div>
   </div>
-
-  <ng-template #loading>
-    <div class="bg-white shadow-md rounded-lg px-6 py-4">
-      <p class="text-lg text-gray-700">Loading invoice...</p>
-    </div>
-  </ng-template>
 </div>

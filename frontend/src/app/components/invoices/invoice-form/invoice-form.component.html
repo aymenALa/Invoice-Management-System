@@ -1,148 +1,113 @@
-<div class="container mx-auto px-4 py-8">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">{{ isEditMode ? 'Edit Invoice' : 'Create New Invoice' }}</h2>
-  <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-    <div class="mb-4">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="invoiceNumber">
-        Invoice Number
-      </label>
-      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-             id="invoiceNumber" type="text" formControlName="invoiceNumber">
-             <p *ngIf=" invoiceForm.get('invoiceNumber')?.invalid && ( invoiceForm.get('invoiceNumber')?.dirty || invoiceForm.get('invoiceNumber')?.touched)" class="text-red-500 text-xs italic">
-              <ng-container *ngIf="invoiceForm.get('invoiceNumber')?.errors?.['required']">Invoice Number is required.❌</ng-container>
-              <ng-container *ngIf="invoiceForm.get('invoiceNumber')?.errors?.['pattern']">Invalid Invoice Number format.😢</ng-container>
-            </p>
+<div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <a routerLink="/invoices" class="inline-flex items-center gap-1.5 text-xs font-medium text-[#94A3B8] hover:text-[#F8FAFC]">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to Invoices
+      </a>
+      <h1 class="mt-2 text-2xl font-bold tracking-tight text-[#F8FAFC]">
+        {{ isEditMode ? 'Edit Invoice' : 'Create New Invoice' }}
+      </h1>
     </div>
-    <div class="mb-4">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="clientId">
-        Client
-      </label>
-      <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="clientId" formControlName="clientId">
-        <option value="">Select a client</option>
-        <option *ngFor="let client of clients" [value]="client.id">
-          {{ client.name }}
-        </option>
-      </select>
-      <p *ngIf="invoiceForm.get('clientId')?.invalid && (invoiceForm.get('clientId')?.dirty || invoiceForm.get('clientId')?.touched)" class="text-red-500 text-xs italic">
-        <ng-container *ngIf="invoiceForm.get('clientId')?.errors?.['required']">Please choose an existing client or create a new one.</ng-container>
-      </p>
-      <p *ngIf="selectedClient" class="mt-2 text-sm text-gray-600">
-        Selected Client: {{ selectedClient.name }}
-        <span *ngIf="selectedClient.email"> - {{ selectedClient.email }}</span>
-      </p>
-      <button type="button" (click)="toggleClientForm()" class="mt-2 bg-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded" style="background-color: #27b397;">
-        Add New Client
-      </button>
-    </div>
+  </div>
 
-    <!-- Client Form -->
-<div *ngIf="showClientForm" class="mt-4 p-4 border rounded">
-  <h3 class="text-lg font-bold mb-2">Add New Client</h3>
-  <form [formGroup]="clientForm" (ngSubmit)="createClient()">
-    <div class="mb-4">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="clientName">
-        Client Name
-      </label>
-      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-             id="clientName" type="text" formControlName="name">
-             <p *ngIf="clientForm.get('name')?.invalid && (clientForm.get('name')?.dirty || clientForm.get('name')?.touched)" class="text-red-500 text-xs italic">
-              <ng-container *ngIf="clientForm.get('name')?.errors?.['required']">Client Name is required.❌</ng-container>
-              <ng-container *ngIf="clientForm.get('name')?.errors?.['minlength']">Client Name must be at least 3 characters long.📏</ng-container>
-            </p>
-    </div>
-    <div class="mb-4">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="clientEmail">
-        Client Email
-      </label>
-      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-             id="clientEmail" type="email" formControlName="email" placeholder="exemple@mail.com">
-             <p *ngIf="clientForm.get('email')?.invalid && (clientForm.get('email')?.dirty || clientForm.get('email')?.touched)" class="text-red-500 text-xs italic">
-              <ng-container *ngIf="clientForm.get('email')?.errors?.['required']">Client Email is required.❌</ng-container>
-              <ng-container *ngIf="clientForm.get('email')?.errors?.['email']">Invalid email address format. Please enter a valid email.📧</ng-container>
-              <ng-container *ngIf="clientForm.get('email')?.errors?.['pattern']">Invalid email format. Ensure it matches the standard pattern.🛠️</ng-container>
-            </p>
-    </div>
-    <div class="mb-4">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="clientAddress">
-        Client Address
-      </label>
-      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-             id="clientAddress" type="text" formControlName="address">
-             <p *ngIf="clientForm.get('address')?.invalid && (clientForm.get('address')?.dirty || clientForm.get('address')?.touched)" class="text-red-500 text-xs italic">
-              <ng-container *ngIf="clientForm.get('address')?.errors?.['required']">Client Address is required.❌</ng-container>
-            </p>
-    </div>
-    <div class="mb-4">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="clientPhoneNumber">
-        Client Phone Number
-      </label>
-      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-             id="clientPhoneNumber" type="tel" formControlName="phoneNumber">
-             <p *ngIf="clientForm.get('phoneNumber')?.invalid && (clientForm.get('phoneNumber')?.dirty || clientForm.get('phoneNumber')?.touched)" class="text-red-500 text-xs italic">
-              <ng-container *ngIf="clientForm.get('phoneNumber')?.errors?.['required']">Client Phone Number is required.❌</ng-container>
-              <ng-container *ngIf="clientForm.get('phoneNumber')?.errors?.['pattern']">Invalid phone number format. Enter a valid phone number (10-14 digits).📞</ng-container>
-            </p>
-    </div>
-    <button type="submit" [disabled]="!clientForm.valid" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-      Create Client
-    </button>
-  </form>
-</div>
-    <div class="mb-4">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="issueDate">
-        Issue Date
-      </label>
-      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-             id="issueDate" type="date" formControlName="issueDate">
-             <p *ngIf="invoiceForm.get('issueDate')?.invalid && (invoiceForm.get('issueDate')?.dirty || invoiceForm.get('issueDate')?.touched)" class="text-red-500 text-xs italic">
-              <ng-container *ngIf="invoiceForm.get('issueDate')?.errors?.['required']">Issue Date is required.❌</ng-container>
-            </p>
-    </div>
-    <div class="mb-4">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="dueDate">
-        Due Date
-      </label>
-      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-             id="dueDate" type="date" formControlName="dueDate">
-             <p *ngIf="invoiceForm.get('dueDate')?.invalid && (invoiceForm.get('dueDate')?.dirty || invoiceForm.get('dueDate')?.touched)" class="text-red-500 text-xs italic">
-              <ng-container *ngIf="invoiceForm.get('dueDate')?.errors?.['required']">Due Date is required.❌</ng-container>
-            </p>
-    </div>
-    <div class="mb-4">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="totalAmount">
-        Total Amount
-      </label>
-      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-             id="totalAmount" type="number" step="0.01" formControlName="totalAmount">
-             <p *ngIf="invoiceForm.get('totalAmount')?.invalid && (invoiceForm.get('totalAmount')?.dirty || invoiceForm.get('totalAmount')?.touched)" class="text-red-500 text-xs italic">
-              <ng-container *ngIf="invoiceForm.get('totalAmount')?.errors?.['required']">Total Amount is required.❌</ng-container>
-              <ng-container *ngIf="invoiceForm.get('totalAmount')?.errors?.['min']">Total Amount must be a positive number.💵</ng-container>
-            </p>
-    </div>
-    <div class="mb-6">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="status">
-        Status
-      </label>
-      <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="status" formControlName="status">
-        <option value="DRAFT">Draft</option>
-        <option value="SENT">Sent</option>
-        <option value="PAID">Paid</option>
-        <option value="OVERDUE">Overdue</option>
-      </select>
-      <p *ngIf="invoiceForm.get('status')?.invalid && (invoiceForm.get('status')?.dirty || invoiceForm.get('status')?.touched)" class="text-red-500 text-xs italic">
-        <ng-container *ngIf="invoiceForm.get('status')?.errors?.['required']">Status is required.❌</ng-container>
-      </p>
-    </div>
-    <div class="flex items-center justify-between">
-      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit">
-        {{ isEditMode ? 'Update' : 'Create' }} Invoice
-      </button>
-      <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button" (click)="router.navigate(['/invoices'])">
-        Cancel
-      </button>
-    </div>
-  </form>
+  <div class="ims-card p-6 sm:p-8">
+    <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()" class="space-y-5">
+      <!-- Client Selection -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="ims-label mb-0" for="clientId">Client</label>
+          <button type="button" (click)="toggleClientForm()" class="text-xs font-semibold text-[#818CF8] hover:text-[#6366F1]">
+            {{ showClientForm ? 'Hide Quick Add' : '+ Quick Add Client' }}
+          </button>
+        </div>
+        <select id="clientId" formControlName="clientId" class="ims-input">
+          <option value="">Select a client...</option>
+          <option *ngFor="let client of clients" [value]="client.id">{{ client.name }} ({{ client.email }})</option>
+        </select>
+        <p *ngIf="invoiceForm.get('clientId')?.touched && invoiceForm.get('clientId')?.invalid" class="mt-1 text-xs text-red-400">
+          Please select a client.
+        </p>
+      </div>
+
+      <!-- Inline Quick-Create Client Panel -->
+      <div *ngIf="showClientForm" [formGroup]="clientForm" class="rounded-xl border border-[#263246] bg-[#0B0F19]/80 p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-[#F8FAFC]">Quick Create Client</h2>
+          <button type="button" (click)="toggleClientForm()" class="text-xs text-[#94A3B8] hover:text-[#F8FAFC]">Close</button>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label class="ims-label">Client Name</label>
+            <input type="text" formControlName="name" class="ims-input" placeholder="Northwind Studio">
+          </div>
+          <div>
+            <label class="ims-label">Email</label>
+            <input type="email" formControlName="email" class="ims-input" placeholder="billing@client.com">
+          </div>
+          <div>
+            <label class="ims-label">Phone Number</label>
+            <input type="text" formControlName="phoneNumber" class="ims-input" placeholder="+15550101001">
+          </div>
+          <div>
+            <label class="ims-label">Address</label>
+            <input type="text" formControlName="address" class="ims-input" placeholder="420 Pine St, Seattle, WA">
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button type="button" (click)="createClient()" [disabled]="clientForm.invalid" class="ims-btn-primary text-xs">
+            Save &amp; Select Client
+          </button>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="ims-label" for="invoiceNumber">Invoice Number</label>
+          <input id="invoiceNumber" type="text" formControlName="invoiceNumber" class="ims-input font-mono" placeholder="INV-2026-015">
+          <p *ngIf="invoiceForm.get('invoiceNumber')?.touched && invoiceForm.get('invoiceNumber')?.invalid" class="mt-1 text-xs text-red-400">
+            Invoice number is required.
+          </p>
+        </div>
+
+        <div>
+          <label class="ims-label" for="status">Status</label>
+          <select id="status" formControlName="status" class="ims-input">
+            <option *ngFor="let st of statuses" [value]="st">{{ st }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div>
+          <label class="ims-label" for="issueDate">Issue Date</label>
+          <input id="issueDate" type="date" formControlName="issueDate" class="ims-input">
+        </div>
+
+        <div>
+          <label class="ims-label" for="dueDate">Due Date</label>
+          <input id="dueDate" type="date" formControlName="dueDate" class="ims-input">
+          <p *ngIf="invoiceForm.hasError('dueBeforeIssue')" class="mt-1 text-xs text-red-400">
+            Due date cannot be before issue date.
+          </p>
+        </div>
+
+        <div>
+          <label class="ims-label" for="totalAmount">Total Amount (USD)</label>
+          <input id="totalAmount" type="number" step="0.01" min="0.01" formControlName="totalAmount" class="ims-input font-mono" placeholder="1250.00">
+          <p *ngIf="invoiceForm.get('totalAmount')?.touched && invoiceForm.get('totalAmount')?.invalid" class="mt-1 text-xs text-red-400">
+            Amount must be greater than 0.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 border-t border-[#263246] pt-5">
+        <a routerLink="/invoices" class="ims-btn-secondary">Cancel</a>
+        <button type="submit" [disabled]="isSubmitting" class="ims-btn-primary">
+          <i class="fa-solid fa-check"></i>
+          {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Invoice' : 'Create Invoice') }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

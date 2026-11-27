@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface ClientAuthResponse {
   token: string;
@@ -13,8 +14,8 @@ interface ClientAuthResponse {
   providedIn: 'root'
 })
 export class ClientPortalService {
-  private clientAuthUrl = 'http://localhost:8080/api/client-auth';
-  private clientPortalUrl = 'http://localhost:8080/api/client-portal';
+  private clientAuthUrl = `${environment.apiBaseUrl}/client-auth`;
+  private clientPortalUrl = `${environment.apiBaseUrl}/client-portal`;
   private tokenKey = 'client_auth_token';
   private clientNameKey = 'client_auth_name';
   private clientEmailKey = 'client_auth_email';
@@ -41,6 +42,10 @@ export class ClientPortalService {
     this.isAuthenticatedSubject.next(false);
   }
 
+  setDemoSession(response: ClientAuthResponse): void {
+    this.storeSession(response);
+  }
+
   isAuthenticated(): Observable<boolean> {
     this.isAuthenticatedSubject.next(this.isTokenPresent());
     return this.isAuthenticatedSubject.asObservable();
@@ -63,7 +68,13 @@ export class ClientPortalService {
   }
 
   updateProfile(profile: any): Observable<any> {
-    return this.http.put(`${this.clientPortalUrl}/me`, profile);
+    return this.http.put(`${this.clientPortalUrl}/me`, profile).pipe(
+      tap((updated: any) => {
+        if (updated?.name) {
+          localStorage.setItem(this.clientNameKey, updated.name);
+        }
+      })
+    );
   }
 
   getInvoices(): Observable<any[]> {

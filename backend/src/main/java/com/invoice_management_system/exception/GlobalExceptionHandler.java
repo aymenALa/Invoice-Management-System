@@ -1,7 +1,10 @@
 package com.invoice_management_system.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,8 +18,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> 
-            errors.put(error.getField(), error.getDefaultMessage()));
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+        String summary = String.join("; ", errors.values());
+        errors.put("message", summary);
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
@@ -24,13 +29,40 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleBusinessException(BusinessException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
+        error.put("message", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        Map<String, String> error = new HashMap<>();
+        String msg = "Operation could not be completed due to existing data constraints.";
+        error.put("error", msg);
+        error.put("message", msg);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Authentication failed");
+        error.put("message", "Invalid username/email or password");
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Access denied");
+        error.put("message", "You do not have permission to perform this action");
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneralException(Exception ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", "An unexpected error occurred");
+        error.put("message", "An unexpected error occurred");
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -12,4 +12,5 @@ public interface ClientPortalAccountRepository extends JpaRepository<ClientPorta
     Optional<ClientPortalAccount> findByClientId(Long clientId);
     boolean existsByClientId(Long clientId);
     boolean existsByEmailIgnoreCase(String email);
+    void deleteByClientId(Long clientId);
 }

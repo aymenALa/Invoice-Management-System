@@ -112,20 +112,24 @@ public class ClientPortalController {
             @PathVariable Long id,
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader
     ) throws Exception {
+        Client client;
         try {
-            Client client = getClientFromHeader(authorizationHeader);
-            Invoice invoice = invoiceRepository.findByIdAndClientId(id, client.getId())
-                    .orElseThrow(() -> new BusinessException("Invoice not found"));
-
-            byte[] pdfBytes = pdfGenerationService.generateInvoicePdf(invoice);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("filename", "Invoice-" + invoice.getInvoiceNumber() + ".pdf");
-
-            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+            client = getClientFromHeader(authorizationHeader);
         } catch (BusinessException e) {
             return unauthorized(e);
         }
+
+        Invoice invoice = invoiceRepository.findByIdAndClientId(id, client.getId()).orElse(null);
+        if (invoice == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Invoice not found"));
+        }
+
+        byte[] pdfBytes = pdfGenerationService.generateInvoicePdf(invoice);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("filename", "Invoice-" + invoice.getInvoiceNumber() + ".pdf");
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
 
     @GetMapping("/invoices/pdf")

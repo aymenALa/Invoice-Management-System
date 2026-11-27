@@ -6,6 +6,7 @@ import com.invoice_management_system.model.User;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.Predicate;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +18,9 @@ public class InvoiceSpecification {
             String invoiceNumber,
             LocalDate startDate,
             LocalDate endDate,
-            Double minAmount,
-            Double maxAmount,
-            Invoice.Status status,
+            BigDecimal minAmount,
+            BigDecimal maxAmount,
+            Invoice.InvoiceStatus status,
             Client client
     ) {
         return (root, query, criteriaBuilder) -> {
@@ -27,8 +28,11 @@ public class InvoiceSpecification {
 
             predicates.add(criteriaBuilder.equal(root.get("user"), user));
 
-            if (invoiceNumber != null && !invoiceNumber.isEmpty()) {
-                predicates.add(criteriaBuilder.like(root.get("invoiceNumber"), "%" + invoiceNumber + "%"));
+            if (invoiceNumber != null && !invoiceNumber.trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("invoiceNumber")),
+                        "%" + invoiceNumber.trim().toLowerCase() + "%"
+                ));
             }
 
             if (startDate != null) {
@@ -50,7 +54,7 @@ public class InvoiceSpecification {
             if (status != null) {
                 predicates.add(criteriaBuilder.equal(root.get("status"), status));
             }
-            
+
             if (client != null) {
                 predicates.add(criteriaBuilder.equal(root.get("client"), client));
             }

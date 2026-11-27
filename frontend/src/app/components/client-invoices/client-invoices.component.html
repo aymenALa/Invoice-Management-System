@@ -1,52 +1,79 @@
-<div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-6">Invoices for {{ client?.name }}</h1>
+<div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <a routerLink="/clients" class="inline-flex items-center gap-1.5 text-xs font-medium text-[#94A3B8] hover:text-[#F8FAFC]">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to Clients
+      </a>
+      <h1 class="mt-2 text-2xl font-bold tracking-tight text-[#F8FAFC]">
+        {{ client?.name || 'Client' }} &middot; Invoice History
+      </h1>
+      <p *ngIf="client" class="mt-1 text-xs text-[#94A3B8]">
+        {{ client.email }} <span *ngIf="client.phoneNumber">&middot; {{ client.phoneNumber }}</span>
+      </p>
+    </div>
 
-  <button (click)="downloadAllInvoicesPdf()" class="bg-500 hover:bg-green-700 text-white font-bold py-2 px-4  hover:shadow-lg mb-4" style="background-color: #27b397;">
-    All Invoices PDF <i class="fa-solid fa-file-pdf"></i>
-  </button>
+    <div class="flex items-center gap-2.5">
+      <button
+        type="button"
+        [disabled]="invoices.length === 0"
+        (click)="downloadAllInvoicesPdf()"
+        class="ims-btn-secondary">
+        <i class="fa-solid fa-file-pdf text-emerald-400"></i>
+        Download Statement PDF
+      </button>
+      <a routerLink="/invoices/new" class="ims-btn-primary">
+        <i class="fa-solid fa-plus text-xs"></i>
+        New Invoice
+      </a>
+    </div>
+  </div>
 
-  <table class="w-full bg-white rounded-lg shadow">
-    <thead>
-      <tr>
-        <th class="text-left p-4">Invoice Number</th>
-        <th class="text-left p-4">Issue Date</th>
-        <th class="text-left p-4">Due Date</th>
-        <th class="text-left p-4">Total Amount</th>
-        <th class="text-left p-4">Status</th>
-        <th class="text-left p-4">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let invoice of invoices">
-        <td class="p-4">{{ invoice.invoiceNumber }}</td>
-        <td class="p-4">{{ invoice.issueDate | date }}</td>
-        <td class="p-4">{{ invoice.dueDate | date }}</td>
-        <td class="p-4">{{ invoice.totalAmount | currency }}</td>
-        <td class="p-4">
-          <span [ngClass]="{
-            'text-green-600': invoice.status === 'PAID',
-            'text-yellow-600': invoice.status === 'PENDING',
-            'text-red-600': invoice.status === 'OVERDUE'
-          }">
-            {{ invoice.status }}
-          </span>
-        </td>
-        <td class="p-4">
-          <button (click)="viewInvoice(invoice.id)" class="icon-button text-indigo-600 hover:text-indigo-900">
-            <div class="icon-container">
-              <i class="fa-solid fa-eye"></i>
-              <span class="button-text">View</span>
-            </div>
-          </button>
-          <button (click)="downloadInvoicePdf(invoice.id)" class="icon-button text-green-600 hover:text-green-900">
-            <div class="icon-container">
-              <i class="fa-solid fa-file-pdf"></i>
-              <span class="button-text">PDF</span>
-            </div>
-          </button>
+  <div class="ims-card overflow-hidden">
+    <div *ngIf="isLoading" class="p-6 space-y-3">
+      <div *ngFor="let i of [1,2,3]" class="ims-skeleton h-10 w-full"></div>
+    </div>
 
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <div *ngIf="!isLoading && invoices.length === 0" class="p-10 text-center text-sm text-[#94A3B8]">
+      No invoices recorded for this client yet.
+    </div>
+
+    <div *ngIf="!isLoading && invoices.length > 0" class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-[#263246] bg-[#0B0F19]/60 text-[11px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+          <tr>
+            <th class="px-5 py-3.5">Invoice #</th>
+            <th class="px-5 py-3.5">Issue Date</th>
+            <th class="px-5 py-3.5">Due Date</th>
+            <th class="px-5 py-3.5">Status</th>
+            <th class="px-5 py-3.5 text-right">Amount</th>
+            <th class="px-5 py-3.5 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#263246]/70">
+          <tr *ngFor="let invoice of invoices" class="transition-colors hover:bg-[#192338]/60">
+            <td class="px-5 py-3.5 font-mono text-xs font-semibold text-[#F8FAFC]">{{ invoice.invoiceNumber }}</td>
+            <td class="px-5 py-3.5 text-xs text-[#94A3B8]">{{ invoice.issueDate | date:'MMM d, y' }}</td>
+            <td class="px-5 py-3.5 text-xs text-[#94A3B8]">{{ invoice.dueDate | date:'MMM d, y' }}</td>
+            <td class="px-5 py-3.5">
+              <span [class]="statusBadgeClass(invoice.status)">{{ invoice.status }}</span>
+            </td>
+            <td class="px-5 py-3.5 text-right font-mono text-xs font-semibold text-[#F8FAFC]">
+              {{ invoice.totalAmount | currency:'USD':'symbol':'1.2-2' }}
+            </td>
+            <td class="px-5 py-3.5 text-right">
+              <div class="inline-flex items-center gap-1">
+                <button type="button" (click)="viewInvoice(invoice.id)" class="ims-btn-ghost px-2.5 py-1.5 text-xs" title="View">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button type="button" (click)="downloadInvoicePdf(invoice)" class="ims-btn-ghost px-2.5 py-1.5 text-xs text-emerald-400" title="Download PDF">
+                  <i class="fa-solid fa-file-pdf"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

@@ -1,117 +1,160 @@
-<div class="client-portal-page">
-  <header class="portal-header">
-    <div>
-      <p class="eyebrow">Client Portal</p>
-      <h1>Welcome, {{ client?.name || 'Client' }}</h1>
-      <p>{{ client?.email }}</p>
-    </div>
-    <div class="header-actions">
-      <button type="button" class="secondary-button" (click)="editProfile()" *ngIf="!isEditingProfile">
-        <i class="fa-solid fa-user-pen"></i>
-        Edit Profile
-      </button>
-      <button type="button" class="secondary-button" (click)="downloadAllInvoicesPdf()" [disabled]="!invoices.length">
-        <i class="fa-solid fa-file-pdf"></i>
-        All PDFs
-      </button>
-      <button type="button" class="logout-button" (click)="logout()">
+<div class="min-h-screen bg-[#0B0F19] text-[#F8FAFC]">
+  <!-- Client Portal Top Bar -->
+  <header class="sticky top-0 z-30 border-b border-[#263246] bg-[#0B0F19]/95 backdrop-blur-md">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#6366F1] text-white">
+          <i class="fa-solid fa-user-shield text-sm"></i>
+        </span>
+        <div>
+          <span class="block text-sm font-bold text-[#F8FAFC]">Client Self-Service Portal</span>
+          <span class="block text-[11px] text-[#94A3B8]">{{ client?.email || 'Authenticated Session' }}</span>
+        </div>
+      </div>
+
+      <button type="button" (click)="logout()" class="ims-btn-secondary py-1.5 px-3 text-xs">
         <i class="fa-solid fa-right-from-bracket"></i>
         Logout
       </button>
     </div>
   </header>
 
-  <section class="summary-grid">
-    <div>
-      <span>Total Invoices</span>
-      <strong>{{ invoices.length }}</strong>
+  <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+    <div *ngIf="errorMessage" class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+      {{ errorMessage }}
     </div>
-    <div>
-      <span>Phone</span>
-      <strong>{{ client?.phoneNumber || '-' }}</strong>
-    </div>
-    <div>
-      <span>Address</span>
-      <strong>{{ client?.address || '-' }}</strong>
-    </div>
-  </section>
-
-  <section class="profile-section" *ngIf="isEditingProfile">
-    <div class="section-heading">
-      <h2>Edit Profile</h2>
-      <p>Email is used for login and cannot be changed here.</p>
+    <div *ngIf="successMessage" class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+      {{ successMessage }}
     </div>
 
-    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
-      <label>
-        <span>Name</span>
-        <input type="text" formControlName="name">
-      </label>
+    <!-- Client KPIs -->
+    <div class="grid gap-4 sm:grid-cols-3">
+      <div class="ims-card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">Total Invoices</p>
+        <p class="mt-2 font-mono text-2xl font-bold text-[#F8FAFC]">{{ invoices.length }}</p>
+      </div>
+      <div class="ims-card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">Paid</p>
+        <p class="mt-2 font-mono text-2xl font-bold text-[#34D399]">{{ paidTotal | currency:'USD':'symbol':'1.2-2' }}</p>
+      </div>
+      <div class="ims-card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">Outstanding Balance</p>
+        <p class="mt-2 font-mono text-2xl font-bold text-[#FBBF24]">{{ outstandingTotal | currency:'USD':'symbol':'1.2-2' }}</p>
+      </div>
+    </div>
 
-      <label>
-        <span>Email</span>
-        <input type="email" [value]="client?.email || ''" disabled>
-      </label>
-
-      <label>
-        <span>Phone</span>
-        <input type="tel" formControlName="phoneNumber">
-      </label>
-
-      <label>
-        <span>Address</span>
-        <input type="text" formControlName="address">
-      </label>
-
-      <div class="form-actions">
-        <button type="submit" class="secondary-button">
-          <i class="fa-solid fa-check"></i>
-          Save
-        </button>
-        <button type="button" class="logout-button" (click)="cancelEditProfile()">
-          Cancel
+    <!-- Profile Card -->
+    <section class="ims-card p-6">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#263246] pb-4">
+        <div>
+          <h2 class="text-base font-semibold text-[#F8FAFC]">Your Organization Profile</h2>
+          <p class="text-xs text-[#94A3B8]">Email is managed by your billing provider</p>
+        </div>
+        <button *ngIf="!isEditingProfile" type="button" (click)="editProfile()" class="ims-btn-secondary py-1.5 px-3 text-xs">
+          <i class="fa-solid fa-pen"></i>
+          Edit Profile
         </button>
       </div>
-    </form>
-  </section>
 
-  <section class="invoice-section">
-    <h2>Invoices</h2>
-    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
-    <p *ngIf="successMessage" class="success-message">{{ successMessage }}</p>
+      <div *ngIf="!isEditingProfile && client" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+        <div>
+          <p class="text-xs text-[#64748B]">Name</p>
+          <p class="mt-0.5 font-medium text-[#F8FAFC]">{{ client.name }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-[#64748B]">Email</p>
+          <p class="mt-0.5 font-medium text-[#F8FAFC]">{{ client.email }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-[#64748B]">Phone</p>
+          <p class="mt-0.5 font-mono text-xs text-[#94A3B8]">{{ client.phoneNumber || 'Not provided' }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-[#64748B]">Address</p>
+          <p class="mt-0.5 text-xs text-[#94A3B8]">{{ client.address || 'Not provided' }}</p>
+        </div>
+      </div>
 
-    <table *ngIf="invoices.length; else emptyState">
-      <thead>
-        <tr>
-          <th>Invoice Number</th>
-          <th>Issue Date</th>
-          <th>Due Date</th>
-          <th>Total Amount</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let invoice of invoices">
-          <td>{{ invoice.invoiceNumber }}</td>
-          <td>{{ invoice.issueDate | date }}</td>
-          <td>{{ invoice.dueDate | date }}</td>
-          <td>{{ invoice.totalAmount | currency }}</td>
-          <td>
-            <span class="status" [ngClass]="invoice.status?.toLowerCase()">{{ invoice.status }}</span>
-          </td>
-          <td>
-            <button type="button" class="icon-action" (click)="downloadInvoicePdf(invoice.id)">
-              <i class="fa-solid fa-file-pdf"></i>
-              PDF
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <form *ngIf="isEditingProfile" [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="mt-4 space-y-4">
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div>
+            <label class="ims-label">Name</label>
+            <input type="text" formControlName="name" class="ims-input">
+          </div>
+          <div>
+            <label class="ims-label">Phone Number</label>
+            <input type="text" formControlName="phoneNumber" class="ims-input">
+          </div>
+          <div>
+            <label class="ims-label">Address</label>
+            <input type="text" formControlName="address" class="ims-input">
+          </div>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" (click)="cancelEditProfile()" class="ims-btn-secondary text-xs">Cancel</button>
+          <button type="submit" class="ims-btn-primary text-xs">Save Changes</button>
+        </div>
+      </form>
+    </section>
 
-    <ng-template #emptyState>
-      <div class="empty-state">No invoices are available yet.</div>
-    </ng-template>
-  </section>
+    <!-- Invoices Table -->
+    <section class="ims-card overflow-hidden">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#263246] px-6 py-4">
+        <div>
+          <h2 class="text-base font-semibold text-[#F8FAFC]">Your Invoices</h2>
+          <p class="text-xs text-[#94A3B8]">Read-only billing history and PDF downloads</p>
+        </div>
+        <button
+          type="button"
+          [disabled]="invoices.length === 0"
+          (click)="downloadAllInvoicesPdf()"
+          class="ims-btn-secondary py-1.5 px-3 text-xs">
+          <i class="fa-solid fa-file-pdf text-emerald-400"></i>
+          Download Full Statement
+        </button>
+      </div>
+
+      <div *ngIf="isLoading" class="p-6 space-y-3">
+        <div *ngFor="let i of [1,2,3]" class="ims-skeleton h-10 w-full"></div>
+      </div>
+
+      <div *ngIf="!isLoading && invoices.length === 0" class="p-10 text-center text-sm text-[#94A3B8]">
+        You do not have any invoices yet.
+      </div>
+
+      <div *ngIf="!isLoading && invoices.length > 0" class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="border-b border-[#263246] bg-[#0B0F19]/60 text-[11px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+            <tr>
+              <th class="px-6 py-3.5">Invoice #</th>
+              <th class="px-6 py-3.5">Issue Date</th>
+              <th class="px-6 py-3.5">Due Date</th>
+              <th class="px-6 py-3.5">Status</th>
+              <th class="px-6 py-3.5 text-right">Amount</th>
+              <th class="px-6 py-3.5 text-right">PDF</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#263246]/70">
+            <tr *ngFor="let invoice of invoices" class="hover:bg-[#192338]/60">
+              <td class="px-6 py-3.5 font-mono text-xs font-semibold text-[#F8FAFC]">{{ invoice.invoiceNumber }}</td>
+              <td class="px-6 py-3.5 text-xs text-[#94A3B8]">{{ invoice.issueDate | date:'MMM d, y' }}</td>
+              <td class="px-6 py-3.5 text-xs text-[#94A3B8]">{{ invoice.dueDate | date:'MMM d, y' }}</td>
+              <td class="px-6 py-3.5">
+                <span [class]="statusBadgeClass(invoice.status)">{{ invoice.status }}</span>
+              </td>
+              <td class="px-6 py-3.5 text-right font-mono text-xs font-semibold text-[#F8FAFC]">
+                {{ invoice.totalAmount | currency:'USD':'symbol':'1.2-2' }}
+              </td>
+              <td class="px-6 py-3.5 text-right">
+                <button type="button" (click)="downloadInvoicePdf(invoice)" class="ims-btn-secondary py-1 px-2.5 text-xs text-emerald-400">
+                  <i class="fa-solid fa-download"></i>
+                  PDF
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 </div>

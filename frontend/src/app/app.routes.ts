@@ -8,12 +8,16 @@ import { ClientInvoicesComponent } from './components/client-invoices/client-inv
 import { ClientsListComponent } from './components/clients-list/clients-list.component';
 import { ClientPortalComponent } from './components/client-portal/client-portal.component';
 import { LandingComponent } from './components/landing/landing.component';
+import { DemoEntryComponent } from './components/demo/demo-entry/demo-entry.component';
+import { DemoInboxComponent } from './components/demo/demo-inbox/demo-inbox.component';
 import { authGuard } from './guards/auth.guard';
 import { clientAuthGuard } from './guards/client-auth.guard';
 import { noAuthGuard } from './guards/no-auth.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
+  { path: 'demo', component: DemoEntryComponent },
+  { path: 'demo/inbox', component: DemoInboxComponent },
   { path: 'auth', component: AuthFormComponent, canActivate: [noAuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'invoices', component: InvoiceListComponent, canActivate: [authGuard] },

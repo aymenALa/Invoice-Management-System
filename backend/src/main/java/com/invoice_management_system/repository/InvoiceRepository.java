@@ -14,15 +14,15 @@ import java.util.Optional;
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
     Page<Invoice> findByUser(User user, Pageable pageable);
-    Page<Invoice> findByUserAndStatusIn(User user, List<Invoice.Status> statuses, Pageable pageable);
+    Page<Invoice> findByUserAndStatusIn(User user, List<Invoice.InvoiceStatus> statuses, Pageable pageable);
     boolean existsByInvoiceNumber(String invoiceNumber);
+    boolean existsByInvoiceNumberAndIdNot(String invoiceNumber, Long id);
     Optional<Invoice> findByIdAndUser(Long id, User user);
     boolean existsByIdAndUser(Long id, User user);
+    boolean existsByClientIdAndUser(Long clientId, User user);
     List<Invoice> findTop5ByUserOrderByIssueDateDesc(User user);
     List<Invoice> findAllByUser(User user);
     List<Invoice> findByClientIdAndUser(Long clientId, User user);
     List<Invoice> findByClientId(Long clientId);
     Optional<Invoice> findByIdAndClientId(Long id, Long clientId);
-//    List<Invoice> findByClientID(Long clientId);
-    
 }

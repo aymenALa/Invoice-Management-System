@@ -1,0 +1,78 @@
+<div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-wider text-[#818CF8]">Simulated Email Delivery</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-[#F8FAFC]">Demo Inbox</h1>
+      <p class="mt-1 text-xs text-[#94A3B8]">
+        Messages are stored locally in IndexedDB. No real external emails are sent in demo mode.
+      </p>
+    </div>
+
+    <a routerLink="/demo" class="ims-btn-secondary text-xs">
+      <i class="fa-solid fa-arrow-left"></i>
+      Role Switcher
+    </a>
+  </div>
+
+  <div *ngIf="isLoading" class="ims-card p-6 space-y-3">
+    <div *ngFor="let i of [1,2,3]" class="ims-skeleton h-12 w-full"></div>
+  </div>
+
+  <div *ngIf="!isLoading && messages.length === 0" class="ims-card p-10 text-center text-sm text-[#94A3B8]">
+    No simulated messages yet. Send a client invitation or request a password reset to see messages here.
+  </div>
+
+  <div *ngIf="!isLoading && messages.length > 0" class="grid gap-6 lg:grid-cols-12">
+    <!-- Message List -->
+    <div class="ims-card divide-y divide-[#263246] overflow-hidden lg:col-span-5">
+      <button
+        type="button"
+        *ngFor="let msg of messages"
+        (click)="selectMessage(msg)"
+        [class.bg-[#192338]]="selectedMessage?.id === msg.id"
+        class="w-full p-4 text-left transition-colors hover:bg-[#192338]/70">
+        <div class="flex items-center justify-between gap-2">
+          <span class="truncate text-xs font-semibold text-[#F8FAFC]">{{ msg.recipientEmail }}</span>
+          <span *ngIf="!msg.read" class="h-2 w-2 shrink-0 rounded-full bg-[#6366F1]" title="Unread"></span>
+        </div>
+        <p class="mt-1 truncate text-xs text-[#94A3B8]">{{ msg.subject }}</p>
+        <div class="mt-2 flex items-center justify-between text-[11px] text-[#64748B]">
+          <span class="ims-badge ims-badge-sent text-[10px]">{{ msg.type }}</span>
+          <span>{{ msg.createdAt | date:'MMM d, HH:mm' }}</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Message Detail -->
+    <div *ngIf="selectedMessage" class="ims-card p-6 lg:col-span-7 space-y-5">
+      <div class="border-b border-[#263246] pb-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="ims-badge ims-badge-sent">{{ selectedMessage.type }}</span>
+          <span class="text-xs text-[#64748B]">{{ selectedMessage.createdAt | date:'medium' }}</span>
+        </div>
+        <h2 class="mt-3 text-lg font-bold text-[#F8FAFC]">{{ selectedMessage.subject }}</h2>
+        <p class="mt-1 text-xs text-[#94A3B8]">To: <span class="text-[#F8FAFC]">{{ selectedMessage.recipientEmail }}</span></p>
+      </div>
+
+      <pre class="whitespace-pre-wrap rounded-lg border border-[#263246] bg-[#0B0F19] p-4 font-sans text-sm leading-relaxed text-[#CBD5E1]">{{ selectedMessage.body }}</pre>
+
+      <div *ngIf="selectedMessage.invitationCode" class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-300">Invitation Code</p>
+          <p class="mt-0.5 font-mono text-xl font-bold tracking-widest text-[#34D399]">{{ selectedMessage.invitationCode }}</p>
+        </div>
+        <button type="button" (click)="copyCode(selectedMessage.invitationCode)" class="ims-btn-secondary text-xs">
+          <i class="fa-solid fa-copy"></i>
+          Copy Code
+        </button>
+      </div>
+
+      <div class="flex flex-wrap justify-end gap-2 pt-2">
+        <button type="button" (click)="openAction(selectedMessage)" class="ims-btn-primary">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          {{ selectedMessage.type === 'PASSWORD_RESET' ? 'Open Password Reset Page' : 'Open Client Activation Page' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,101 +1,146 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="text-3xl font-bold">Clients</h1>
-    <button type="button" (click)="toggleClientForm()" class="btn-view-invoices">
-      <i class="fa-solid" [ngClass]="showClientForm ? 'fa-xmark' : 'fa-plus'"></i>
-      {{ showClientForm ? 'Cancel' : 'Create Client' }}
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-wider text-[#818CF8]">Directory &amp; Portal Access</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-[#F8FAFC]">Clients</h1>
+    </div>
+
+    <button type="button" (click)="toggleClientForm()" class="ims-btn-primary">
+      <i class="fa-solid" [ngClass]="showClientForm ? 'fa-xmark' : 'fa-user-plus'"></i>
+      {{ showClientForm ? 'Close Form' : 'Add Client' }}
     </button>
   </div>
 
-  <form *ngIf="showClientForm" [formGroup]="clientForm" (ngSubmit)="saveClient()" class="bg-white rounded-lg shadow p-6 mb-6">
-    <h2 class="text-xl font-bold mb-4">{{ editingClientId ? 'Edit Client' : 'Create New Client' }}</h2>
+  <!-- Create / Edit Client Panel -->
+  <div *ngIf="showClientForm" class="ims-card p-6">
+    <h2 class="text-base font-semibold text-[#F8FAFC] mb-4">
+      {{ editingClientId ? 'Edit Client Profile' : 'New Client Profile' }}
+    </h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="clientName">Name</label>
-        <input id="clientName" type="text" formControlName="name"
-               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        <p *ngIf="clientForm.get('name')?.invalid && (clientForm.get('name')?.dirty || clientForm.get('name')?.touched)" class="text-red-500 text-xs italic mt-1">
-          <ng-container *ngIf="clientForm.get('name')?.errors?.['required']">Client name is required.</ng-container>
-          <ng-container *ngIf="clientForm.get('name')?.errors?.['minlength']">Client name must be at least 3 characters.</ng-container>
-        </p>
+    <form [formGroup]="clientForm" (ngSubmit)="saveClient()" class="space-y-4">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="ims-label" for="clientName">Client Name</label>
+          <input id="clientName" type="text" formControlName="name" class="ims-input" placeholder="Northwind Studio">
+        </div>
+        <div>
+          <label class="ims-label" for="clientEmailInput">Email Address</label>
+          <input id="clientEmailInput" type="email" formControlName="email" class="ims-input" placeholder="billing@northwind.example">
+        </div>
+        <div>
+          <label class="ims-label" for="clientPhone">Phone Number</label>
+          <input id="clientPhone" type="text" formControlName="phoneNumber" class="ims-input" placeholder="+15550101001">
+        </div>
+        <div>
+          <label class="ims-label" for="clientAddress">Billing Address</label>
+          <input id="clientAddress" type="text" formControlName="address" class="ims-input" placeholder="420 Pine Street, Seattle, WA">
+        </div>
       </div>
 
-      <div>
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="clientEmail">Email</label>
-        <input id="clientEmail" type="email" formControlName="email"
-               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        <p *ngIf="clientForm.get('email')?.invalid && (clientForm.get('email')?.dirty || clientForm.get('email')?.touched)" class="text-red-500 text-xs italic mt-1">
-          <ng-container *ngIf="clientForm.get('email')?.errors?.['required']">Client email is required.</ng-container>
-          <ng-container *ngIf="clientForm.get('email')?.errors?.['email']">Enter a valid email address.</ng-container>
-        </p>
+      <div class="flex justify-end gap-2.5 pt-2">
+        <button type="button" (click)="cancelClientForm()" class="ims-btn-secondary">Cancel</button>
+        <button type="submit" [disabled]="isSaving" class="ims-btn-primary">
+          <i class="fa-solid fa-check"></i>
+          {{ isSaving ? 'Saving...' : (editingClientId ? 'Update Client' : 'Save Client') }}
+        </button>
       </div>
+    </form>
+  </div>
 
-      <div>
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="clientPhone">Phone Number</label>
-        <input id="clientPhone" type="tel" formControlName="phoneNumber"
-               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+  <!-- Search & Portal Status Filter -->
+  <div class="ims-card p-4">
+    <div class="grid gap-3 sm:grid-cols-12 sm:items-end">
+      <div class="sm:col-span-8">
+        <label class="ims-label" for="clientSearch">Search Clients</label>
+        <input id="clientSearch" type="text" [(ngModel)]="searchQuery" placeholder="Filter by name, email, or phone..." class="ims-input">
       </div>
-
-      <div>
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="clientAddress">Address</label>
-        <input id="clientAddress" type="text" formControlName="address"
-               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      <div class="sm:col-span-4">
+        <label class="ims-label" for="portalFilter">Portal Status</label>
+        <select id="portalFilter" [(ngModel)]="portalFilter" class="ims-input">
+          <option value="ALL">All Portal States</option>
+          <option value="ACTIVE">Active Portal</option>
+          <option value="BLOCKED">Blocked Portal</option>
+          <option value="PENDING">Not Activated</option>
+        </select>
       </div>
     </div>
+  </div>
 
-    <div class="mt-6">
-      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-        {{ editingClientId ? 'Update Client' : 'Save Client' }}
-      </button>
-      <button type="button" (click)="cancelClientForm()" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
-        Cancel
-      </button>
+  <!-- Clients Table -->
+  <div class="ims-card overflow-hidden">
+    <div *ngIf="isLoading" class="p-6 space-y-3">
+      <div *ngFor="let i of [1,2,3,4]" class="ims-skeleton h-12 w-full"></div>
     </div>
-  </form>
 
-  <table class="w-full bg-white rounded-lg shadow">
-    <thead>
-      <tr>
-        <th class="text-left p-4">Name</th>
-        <th class="text-left p-4">Email</th>
-        <th class="text-left p-4">Phone Number</th>
-        <th class="text-left p-4">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let client of clients">
-        <td class="p-4">{{ client.name }}</td>
-        <td class="p-4">{{ client.email }}</td>
-        <td class="p-4">{{ client.phoneNumber }}</td>
-        <td class="p-4">
-          <button (click)="viewClientInvoices(client.id)" class="btn-view-invoices">
-            <i class="fa-solid fa-eye"></i>
-            <span class="button-text"></span>
-          View Invoices</button>
-          <button (click)="editClient(client)" class="btn-view-invoices">
-            <i class="fa-solid fa-pen-to-square"></i>
-            <span class="button-text"></span>
-          Edit Client</button>
-          <button (click)="generateAccessCode(client)" class="btn-view-invoices">
-            <i class="fa-solid fa-key"></i>
-            <span class="button-text"></span>
-          Access Code</button>
-          <button (click)="sendAccessCode(client)" class="btn-view-invoices">
-            <i class="fa-solid fa-paper-plane"></i>
-            <span class="button-text"></span>
-          Send Code</button>
-          <button *ngIf="client.portalAccountExists" (click)="toggleClientPortalAccess(client)"
-                  [ngClass]="client.portalAccessEnabled ? 'btn-delete' : 'btn-view-invoices'">
-            <i class="fa-solid" [ngClass]="client.portalAccessEnabled ? 'fa-ban' : 'fa-lock-open'"></i>
-            <span class="button-text"></span>
-          {{ client.portalAccessEnabled ? 'Block Access' : 'Unblock Access' }}</button>
-          <button (click)="deleteClient(client.id)" class="btn-delete">
-            <i class="fa-solid fa-trash"></i>
-            <span class="button-text"></span>
-          Delete Client</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <div *ngIf="!isLoading && filteredClients.length === 0" class="p-10 text-center text-sm text-[#94A3B8]">
+      No clients found matching your filter.
+    </div>
+
+    <div *ngIf="!isLoading && filteredClients.length > 0" class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-[#263246] bg-[#0B0F19]/60 text-[11px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+          <tr>
+            <th class="px-5 py-3.5">Client</th>
+            <th class="px-5 py-3.5">Contact</th>
+            <th class="px-5 py-3.5">Portal Status</th>
+            <th class="px-5 py-3.5 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#263246]/70">
+          <tr *ngFor="let client of filteredClients" class="transition-colors hover:bg-[#192338]/60">
+            <td class="px-5 py-4">
+              <p class="font-semibold text-[#F8FAFC]">{{ client.name }}</p>
+              <p *ngIf="client.address" class="mt-0.5 text-xs text-[#64748B] max-w-xs truncate">{{ client.address }}</p>
+            </td>
+            <td class="px-5 py-4">
+              <p class="text-xs text-[#F8FAFC]">{{ client.email }}</p>
+              <p *ngIf="client.phoneNumber" class="mt-0.5 font-mono text-xs text-[#94A3B8]">{{ client.phoneNumber }}</p>
+            </td>
+            <td class="px-5 py-4">
+              <span *ngIf="client.portalAccountExists && client.portalAccessEnabled" class="ims-badge ims-badge-paid">
+                Active
+              </span>
+              <span *ngIf="client.portalAccountExists && !client.portalAccessEnabled" class="ims-badge ims-badge-overdue">
+                Blocked
+              </span>
+              <span *ngIf="!client.portalAccountExists" class="ims-badge ims-badge-draft">
+                Not Activated
+              </span>
+            </td>
+            <td class="px-5 py-4 text-right">
+              <div class="inline-flex flex-wrap items-center justify-end gap-1.5">
+                <button type="button" (click)="viewClientInvoices(client.id)" class="ims-btn-secondary py-1.5 px-2.5 text-xs">
+                  <i class="fa-solid fa-file-invoice"></i>
+                  Invoices
+                </button>
+                <button
+                  *ngIf="!client.portalAccountExists"
+                  type="button"
+                  (click)="generateAccessCode(client)"
+                  class="ims-btn-secondary py-1.5 px-2.5 text-xs text-[#818CF8]">
+                  <i class="fa-solid fa-key"></i>
+                  Access Code
+                </button>
+                <button
+                  *ngIf="client.portalAccountExists"
+                  type="button"
+                  (click)="toggleClientPortalAccess(client)"
+                  [class]="client.portalAccessEnabled ? 'ims-btn-danger py-1.5 px-2.5 text-xs' : 'ims-btn-secondary py-1.5 px-2.5 text-xs text-emerald-400'">
+                  <i class="fa-solid" [ngClass]="client.portalAccessEnabled ? 'fa-ban' : 'fa-unlock'"></i>
+                  {{ client.portalAccessEnabled ? 'Block' : 'Unblock' }}
+                </button>
+                <button type="button" (click)="editClient(client)" class="ims-btn-ghost py-1.5 px-2 text-xs" title="Edit client">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button type="button" (click)="deleteClient(client.id)" class="ims-btn-ghost py-1.5 px-2 text-xs text-red-400 hover:text-red-300" title="Delete client">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

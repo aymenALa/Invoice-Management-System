@@ -2,68 +2,122 @@
 @tailwind components;
 @tailwind utilities;
 
-.icon-button {
-  display: inline-flex;
-  flex-direction: column; /* Stack icon and text vertically */
-  align-items: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem; /* Optional: Add padding to the button */
-  position: relative;
+:root {
+  --ims-canvas: #0B0F19;
+  --ims-surface: #131C2B;
+  --ims-surface-elevated: #192338;
+  --ims-border: #263246;
+  --ims-primary: #6366F1;
+  --ims-primary-hover: #4F46E5;
+  --ims-text: #F8FAFC;
+  --ims-text-secondary: #94A3B8;
+  --ims-text-muted: #64748B;
+  --ims-success: #34D399;
+  --ims-warning: #FBBF24;
+  --ims-danger: #F87171;
 }
 
-.icon-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+@layer base {
+  html, body {
+    background-color: var(--ims-canvas);
+    color: var(--ims-text);
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    min-height: 100%;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--ims-primary);
+    outline-offset: 2px;
+  }
 }
 
-.icon-container i {
-  font-size: 1.5rem; /* Adjust icon size as needed */
-  margin-bottom: 0.25rem; /* Space between icon and text */
+@layer components {
+  .ims-card {
+    @apply bg-[#131C2B] border border-[#263246] rounded-xl shadow-sm;
+  }
+
+  .ims-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-[#6366F1] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#4F46E5] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .ims-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-[#263246] bg-[#192338] px-4 py-2.5 text-sm font-medium text-[#F8FAFC] transition-colors hover:border-[#3B4C68] hover:bg-[#1E2A42] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .ims-btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .ims-btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-[#94A3B8] transition-colors hover:bg-[#192338] hover:text-[#F8FAFC];
+  }
+
+  .ims-input {
+    @apply w-full rounded-lg border border-[#263246] bg-[#0B0F19] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder-[#64748B] transition-colors focus:border-[#6366F1] focus:outline-none focus:ring-1 focus:ring-[#6366F1] disabled:opacity-60;
+  }
+
+  .ims-label {
+    @apply block text-xs font-semibold uppercase tracking-wider text-[#94A3B8] mb-1.5;
+  }
+
+  .ims-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide border;
+  }
+
+  .ims-badge-paid {
+    @apply bg-emerald-500/10 text-emerald-400 border-emerald-500/30;
+  }
+
+  .ims-badge-sent {
+    @apply bg-indigo-500/10 text-indigo-300 border-indigo-500/30;
+  }
+
+  .ims-badge-overdue {
+    @apply bg-red-500/10 text-red-400 border-red-500/30;
+  }
+
+  .ims-badge-draft {
+    @apply bg-amber-500/10 text-amber-300 border-amber-500/30;
+  }
+
+  .ims-badge-cancelled {
+    @apply bg-slate-500/10 text-slate-400 border-slate-500/30;
+  }
+
+  .ims-skeleton {
+    @apply animate-pulse rounded-lg bg-[#192338];
+  }
 }
 
-.icon-container .button-text {
-  display: none;
+/* SweetAlert2 Dark Theme Harmonization */
+.swal2-popup {
+  background: #131C2B !important;
+  color: #F8FAFC !important;
+  border: 1px solid #263246 !important;
+  border-radius: 0.75rem !important;
+}
+.swal2-title {
+  color: #F8FAFC !important;
+}
+.swal2-html-container {
+  color: #94A3B8 !important;
+}
+.swal2-confirm {
+  background-color: #6366F1 !important;
+  border-radius: 0.5rem !important;
+}
+.swal2-cancel {
+  background-color: #192338 !important;
+  color: #F8FAFC !important;
+  border: 1px solid #263246 !important;
+  border-radius: 0.5rem !important;
 }
 
-.icon-button:hover .icon-container .button-text {
-  display: block;
-}
-
-.bg-blue-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(94 148 236);
-}
-.bg-red-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 74 74);
-}
-
-
-.btn-view-invoices,.btn-delete {
-  background-color: #27b397;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 14px;
-  margin: 2px 2px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-.btn-view-invoices:hover{
-  background-color: #6ec9b7;
-  color: rgb(0, 0, 0);
-}
-.btn-delete{
-  background-color: rgb(240, 35, 35);
-}
-.btn-delete:hover{
-  background-color: rgb(233, 145, 145);
-  color: rgb(0, 0, 0);
-
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

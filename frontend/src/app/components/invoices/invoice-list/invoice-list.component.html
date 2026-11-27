@@ -1,71 +1,144 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">Invoices</h1>
-    <button (click)="router.navigate(['/invoices/new'])" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-      <i class="fa-solid fa-plus"></i> New Invoice
-    </button>
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-wider text-[#818CF8]">Billing Ledger</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-[#F8FAFC]">Invoices</h1>
+    </div>
+
+    <a routerLink="/invoices/new" class="ims-btn-primary">
+      <i class="fa-solid fa-plus text-xs"></i>
+      Create Invoice
+    </a>
   </div>
 
-  <div class="bg-white shadow-md rounded-lg overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice Number</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issue Date</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <tr *ngFor="let invoice of invoices">
-          <td class="px-6 py-4 whitespace-nowrap">{{ invoice.invoiceNumber }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ invoice.client?.name }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ invoice.issueDate | date }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ invoice.dueDate | date }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ invoice.totalAmount | currency }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                  [ngClass]="{
-                    'bg-green-100 text-green-800': invoice.status === 'PAID',
-                    'bg-yellow-100 text-yellow-800': invoice.status === 'PENDING',
-                    'bg-red-100 text-red-800': invoice.status === 'OVERDUE'
-                  }">
-              {{ invoice.status }}
-            </span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <button (click)="router.navigate(['/invoices', invoice.id])" class="icon-button text-indigo-600 hover:text-indigo-900">
-              <div class="icon-container">
-                <i class="fa-solid fa-eye"></i>
-                <span class="button-text">View</span>
-              </div>
-            </button>
-            <button (click)="router.navigate(['/invoices', invoice.id, 'edit'])" class="icon-button text-blue-600 hover:text-blue-900">
-              <div class="icon-container">
-                <i class="fa-regular fa-pen-to-square"></i>
-                <span class="button-text">Edit</span>
-              </div>
-            </button>
-            <button (click)="deleteInvoice(invoice.id)" class="icon-button text-red-600 hover:text-red-900">
-              <div class="icon-container">
-                <i class="fa-solid fa-trash"></i>
-                <span class="button-text">Delete</span>
-              </div>
-            </button>
-            <button (click)="downloadInvoicePdf(invoice.id)" class="icon-button text-green-600 hover:text-green-900">
-              <div class="icon-container">
-                <i class="fa-solid fa-file-pdf"></i>
-                <span class="button-text">PDF</span>
-              </div>
-            </button>
-          </td>
+  <!-- Search & Filter Bar -->
+  <div class="ims-card p-4">
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-12 lg:items-end">
+      <div class="lg:col-span-4">
+        <label class="ims-label" for="invoiceSearch">Invoice Number</label>
+        <input
+          id="invoiceSearch"
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="applyFilters()"
+          placeholder="Search e.g. INV-2026..."
+          class="ims-input">
+      </div>
 
+      <div class="lg:col-span-3">
+        <label class="ims-label" for="statusFilter">Status</label>
+        <select id="statusFilter" [(ngModel)]="statusFilter" (change)="applyFilters()" class="ims-input">
+          <option value="">All Statuses</option>
+          <option *ngFor="let st of statuses" [value]="st">{{ st }}</option>
+        </select>
+      </div>
 
-        </tr>
-      </tbody>
-    </table>
+      <div class="lg:col-span-3">
+        <label class="ims-label" for="sortBySelect">Sort By</label>
+        <div class="flex gap-2">
+          <select id="sortBySelect" [(ngModel)]="sortBy" (change)="applyFilters()" class="ims-input">
+            <option value="issueDate">Issue Date</option>
+            <option value="dueDate">Due Date</option>
+            <option value="totalAmount">Amount</option>
+            <option value="invoiceNumber">Invoice #</option>
+          </select>
+          <button
+            type="button"
+            (click)="sortDir = sortDir === 'desc' ? 'asc' : 'desc'; applyFilters()"
+            [attr.aria-label]="'Sort direction ' + sortDir"
+            class="ims-btn-secondary px-3 shrink-0">
+            <i class="fa-solid" [ngClass]="sortDir === 'desc' ? 'fa-arrow-down-wide-short' : 'fa-arrow-up-short-wide'"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-2 lg:col-span-2">
+        <button type="button" (click)="applyFilters()" class="ims-btn-primary flex-1">Filter</button>
+        <button type="button" (click)="clearFilters()" class="ims-btn-secondary px-3" title="Reset filters">
+          <i class="fa-solid fa-rotate-left text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Table Card -->
+  <div class="ims-card overflow-hidden">
+    <div *ngIf="isLoading" class="p-6 space-y-3">
+      <div *ngFor="let i of [1,2,3,4,5]" class="ims-skeleton h-10 w-full"></div>
+    </div>
+
+    <div *ngIf="!isLoading && invoices.length === 0" class="p-10 text-center">
+      <p class="text-sm font-medium text-[#F8FAFC]">No invoices match your criteria</p>
+      <p class="mt-1 text-xs text-[#94A3B8]">Adjust your filters or create a new invoice.</p>
+    </div>
+
+    <div *ngIf="!isLoading && invoices.length > 0" class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-[#263246] bg-[#0B0F19]/60 text-[11px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+          <tr>
+            <th class="px-5 py-3.5">Invoice #</th>
+            <th class="px-5 py-3.5">Client</th>
+            <th class="px-5 py-3.5">Issue Date</th>
+            <th class="px-5 py-3.5">Due Date</th>
+            <th class="px-5 py-3.5">Status</th>
+            <th class="px-5 py-3.5 text-right">Amount</th>
+            <th class="px-5 py-3.5 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#263246]/70">
+          <tr *ngFor="let invoice of invoices" class="transition-colors hover:bg-[#192338]/60">
+            <td class="px-5 py-3.5 font-mono text-xs font-semibold text-[#F8FAFC]">
+              <a [routerLink]="['/invoices', invoice.id]" class="hover:text-[#818CF8]">{{ invoice.invoiceNumber }}</a>
+            </td>
+            <td class="px-5 py-3.5 text-xs text-[#94A3B8]">{{ invoice.client?.name || 'Unassigned' }}</td>
+            <td class="px-5 py-3.5 text-xs text-[#94A3B8]">{{ invoice.issueDate | date:'MMM d, y' }}</td>
+            <td class="px-5 py-3.5 text-xs text-[#94A3B8]">{{ invoice.dueDate | date:'MMM d, y' }}</td>
+            <td class="px-5 py-3.5">
+              <span [class]="statusBadgeClass(invoice.status)">{{ invoice.status }}</span>
+            </td>
+            <td class="px-5 py-3.5 text-right font-mono text-xs font-semibold text-[#F8FAFC]">
+              {{ invoice.totalAmount | currency:'USD':'symbol':'1.2-2' }}
+            </td>
+            <td class="px-5 py-3.5 text-right">
+              <div class="inline-flex items-center gap-1">
+                <a [routerLink]="['/invoices', invoice.id]" class="ims-btn-ghost px-2.5 py-1.5 text-xs" title="View invoice">
+                  <i class="fa-solid fa-eye"></i>
+                </a>
+                <a [routerLink]="['/invoices', invoice.id, 'edit']" class="ims-btn-ghost px-2.5 py-1.5 text-xs" title="Edit invoice">
+                  <i class="fa-solid fa-pen"></i>
+                </a>
+                <button type="button" (click)="downloadInvoicePdf(invoice)" class="ims-btn-ghost px-2.5 py-1.5 text-xs text-emerald-400 hover:text-emerald-300" title="Download PDF">
+                  <i class="fa-solid fa-file-pdf"></i>
+                </button>
+                <button type="button" (click)="deleteInvoice(invoice.id)" class="ims-btn-ghost px-2.5 py-1.5 text-xs text-red-400 hover:text-red-300" title="Delete invoice">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!isLoading && totalPages > 1" class="flex flex-col gap-3 border-t border-[#263246] px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+      <p class="text-xs text-[#94A3B8]">
+        Showing page <span class="font-semibold text-[#F8FAFC]">{{ page + 1 }}</span> of <span class="font-semibold text-[#F8FAFC]">{{ totalPages }}</span>
+        ({{ totalElements }} total)
+      </p>
+      <div class="flex items-center gap-2">
+        <button type="button" [disabled]="page === 0" (click)="changePage(page - 1)" class="ims-btn-secondary py-1.5 px-3 text-xs">
+          Previous
+        </button>
+        <button type="button" [disabled]="page + 1 >= totalPages" (click)="changePage(page + 1)" class="ims-btn-secondary py-1.5 px-3 text-xs">
+          Next
+        </button>
+      </div>
+    </div>
   </div>
 </div>

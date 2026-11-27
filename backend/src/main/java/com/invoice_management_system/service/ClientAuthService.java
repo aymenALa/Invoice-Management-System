@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ClientAuthService {
@@ -198,12 +199,13 @@ public class ClientAuthService {
     }
 
     private ClientInvitation findMatchingInvitation(String email, String invitationCode) {
+        String normalizedCode = invitationCode == null ? "" : invitationCode.trim().toUpperCase(Locale.ROOT);
         List<ClientInvitation> invitations = invitationRepository
                 .findByClient_EmailIgnoreCaseAndUsedAtIsNullOrderByCreatedAtDesc(email.trim());
 
         return invitations.stream()
                 .filter(invitation -> invitation.getExpiresAt().isAfter(LocalDateTime.now()))
-                .filter(invitation -> passwordEncoder.matches(invitationCode, invitation.getCodeHash()))
+                .filter(invitation -> passwordEncoder.matches(normalizedCode, invitation.getCodeHash()))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException("Invalid or expired invitation code"));
     }
@@ -217,19 +219,24 @@ public class ClientAuthService {
 
     private void sendInvitationEmail(Client client, String invitationCode, LocalDateTime expiresAt) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(mailUsername);
+        String fromAddress = (mailUsername != null && !mailUsername.isBlank()) ? mailUsername : "noreply@ims.local";
+        message.setFrom(fromAddress);
         message.setTo(client.getEmail());
         message.setSubject("Invoice Management System client portal invitation");
         message.setText(
                 "Hello " + client.getName() + ",\n\n" +
                 "You have been invited to access your invoices in the client portal.\n\n" +
-                "Open the portal here:\n" + frontendUrl + "/auth\n\n" +
+                "Open the portal here:\n" + frontendUrl + "/auth?accountType=client\n\n" +
                 "Use this email address: " + client.getEmail() + "\n" +
                 "Invitation code: " + invitationCode + "\n\n" +
                 "This code expires on " + expiresAt + "."
         );
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new BusinessException("Could not send invitation email. Verify SMTP configuration or copy the access code directly.");
+        }
     }
 
     private ClientLoginResponse buildLoginResponse(ClientPortalAccount account) {

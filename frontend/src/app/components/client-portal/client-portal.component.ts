@@ -17,6 +17,7 @@ export class ClientPortalComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   isEditingProfile = false;
+  isLoading = true;
   profileForm: FormGroup;
 
   constructor(
@@ -35,7 +36,20 @@ export class ClientPortalComponent implements OnInit {
     this.loadPortalData();
   }
 
+  get paidTotal(): number {
+    return this.invoices
+      .filter(i => i.status === 'PAID')
+      .reduce((sum, i) => sum + Number(i.totalAmount || 0), 0);
+  }
+
+  get outstandingTotal(): number {
+    return this.invoices
+      .filter(i => i.status === 'SENT' || i.status === 'OVERDUE')
+      .reduce((sum, i) => sum + Number(i.totalAmount || 0), 0);
+  }
+
   loadPortalData(): void {
+    this.isLoading = true;
     this.clientPortalService.getProfile().subscribe({
       next: client => {
         this.client = client;
@@ -45,23 +59,53 @@ export class ClientPortalComponent implements OnInit {
     });
 
     this.clientPortalService.getInvoices().subscribe({
-      next: invoices => this.invoices = invoices,
-      error: error => this.handleAuthError(error)
+      next: invoices => {
+        this.invoices = invoices || [];
+        this.isLoading = false;
+      },
+      error: error => {
+        this.isLoading = false;
+        this.handleAuthError(error);
+      }
     });
   }
 
-  downloadInvoicePdf(invoiceId: number): void {
-    this.clientPortalService.downloadInvoicePdf(invoiceId).subscribe(blob => this.openBlob(blob));
+  statusBadgeClass(status: string): string {
+    switch (status) {
+      case 'PAID': return 'ims-badge ims-badge-paid';
+      case 'SENT': return 'ims-badge ims-badge-sent';
+      case 'OVERDUE': return 'ims-badge ims-badge-overdue';
+      case 'DRAFT': return 'ims-badge ims-badge-draft';
+      default: return 'ims-badge ims-badge-cancelled';
+    }
+  }
+
+  downloadInvoicePdf(invoice: any): void {
+    const id = typeof invoice === 'number' ? invoice : invoice.id;
+    const invNum = typeof invoice === 'number' ? String(invoice) : (invoice.invoiceNumber || String(id));
+    this.clientPortalService.downloadInvoicePdf(id).subscribe({
+      next: blob => this.saveBlob(blob, `Invoice-${invNum}.pdf`),
+      error: error => {
+        if (error?.status === 401) {
+          this.handleAuthError(error);
+        } else {
+          this.errorMessage = 'Could not download the invoice PDF.';
+        }
+      }
+    });
   }
 
   downloadAllInvoicesPdf(): void {
-    this.clientPortalService.downloadAllInvoicesPdf().subscribe(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `client-invoices.pdf`;
-      link.click();
-      window.URL.revokeObjectURL(url);
+    if (this.invoices.length === 0) return;
+    this.clientPortalService.downloadAllInvoicesPdf().subscribe({
+      next: blob => this.saveBlob(blob, 'client-invoices.pdf'),
+      error: error => {
+        if (error?.status === 401) {
+          this.handleAuthError(error);
+        } else {
+          this.errorMessage = 'Could not download the statement PDF.';
+        }
+      }
     });
   }
 
@@ -95,26 +139,31 @@ export class ClientPortalComponent implements OnInit {
         this.successMessage = 'Profile updated successfully.';
       },
       error: error => {
-        this.errorMessage = error?.error?.message || 'Could not update your profile.';
+        if (error?.status === 401) {
+          this.handleAuthError(error);
+        } else {
+          this.errorMessage = error?.error?.message || 'Could not update your profile.';
+        }
       }
     });
   }
 
   logout(): void {
     this.clientPortalService.logout();
-    this.router.navigate(['/auth']);
+    this.router.navigate(['/auth'], { queryParams: { accountType: 'client' } });
   }
 
-  private openBlob(blob: Blob): void {
+  private saveBlob(blob: Blob, filename: string): void {
     const url = window.URL.createObjectURL(blob);
-    window.open(url);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
   private patchProfileForm(client: any): void {
-    if (!client) {
-      return;
-    }
-
+    if (!client) return;
     this.profileForm.patchValue({
       name: client.name || '',
       phoneNumber: client.phoneNumber || '',
